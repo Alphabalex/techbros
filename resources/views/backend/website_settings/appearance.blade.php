@@ -86,23 +86,23 @@
                             <div class="col-md-8">
                                 <input type="hidden" name="types[]" value="web_custom_css">
                                 <textarea name="web_custom_css" rows="8" class="form-control" placeholder="<style>&#10;...&#10;</style>">{{ get_setting('web_custom_css') }}</textarea>
-                                <small class="">{{ translate('Write css with <style> tag') }}</small>
+                                <small class="">{{ translate('Write css with') .' <style> '. translate('tag') }}</small>
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label class="col-md-3 col-from-label">{{ translate('Header custom script - before </head>') }}</label>
+                            <label class="col-md-3 col-from-label">{{ translate('Header custom script - before').' </head>' }}</label>
                             <div class="col-md-8">
                                 <input type="hidden" name="types[]" value="header_script">
                                 <textarea name="header_script" rows="6" class="form-control" placeholder="<script>&#10;...&#10;</script>">{{ get_setting('header_script') }}</textarea>
-                                <small class="">{{ translate('Write script with <script> tag') }}</small>
+                                <small class="">{{ translate('Write script with') .' <script> '. translate('tag') }}</small>
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label class="col-md-3 col-from-label">{{ translate('Footer custom script - before </body>') }}</label>
+                            <label class="col-md-3 col-from-label">{{ translate('Footer custom script - before') .' </body>' }}</label>
                             <div class="col-md-8">
                                 <input type="hidden" name="types[]" value="footer_script">
                                 <textarea name="footer_script" rows="6" class="form-control" placeholder="<script>&#10;...&#10;</script>">{{ get_setting('footer_script') }}</textarea>
-                                <small class="">{{ translate('Write script with <script> tag') }}</small>
+                                <small class="">{{  translate('Write script with') .' <script> '. translate('tag') }}</small>
                             </div>
                         </div>
                         <div class="text-right">

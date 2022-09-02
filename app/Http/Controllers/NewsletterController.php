@@ -17,7 +17,7 @@ class NewsletterController extends Controller
 
     public function index(Request $request)
     {
-        $users = User::all();
+        $users = User::where('user_type','customer')->where('email','!=', null)->get();
         $subscribers = Subscriber::all();
         return view('backend.marketing.newsletters.index', compact('users', 'subscribers'));
     }

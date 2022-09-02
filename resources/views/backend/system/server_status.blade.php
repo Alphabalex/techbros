@@ -204,7 +204,7 @@
                                 {{ ini_get('memory_limit') }}
                                 @endif
                             </td>
-                            <td>256M+</td>
+                            <td>512M+</td>
                             <td>
                                 @php
                                     $memory_limit = ini_get('memory_limit');
@@ -218,7 +218,7 @@
                                         }
                                     }
                                 @endphp
-                                @if (ini_get('memory_limit') == -1 || $memory_limit >= (256 * 1024 * 1024))
+                                @if (ini_get('memory_limit') == -1 || $memory_limit >= (512 * 1024 * 1024))
                                 <i class="las la-check text-success"></i>
                                 @else
                                 <i class="las la-times text-danger"></i>

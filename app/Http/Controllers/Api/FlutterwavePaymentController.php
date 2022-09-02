@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Order;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Rave as Flutterwave;
@@ -18,11 +19,10 @@ class FlutterwavePaymentController extends Controller
         session()->put('user_id', $request->user_id);
         session()->put('order_code', $request->order_code);
 
-        if($request->payment_type == 'cart_payment'){
-            $order = Order::where('code',session('order_code'))->first();
+        if ($request->payment_type == 'cart_payment') {
+            $order = Order::where('code', session('order_code'))->first();
             return $this->initialize($order->grand_total);
-        }
-        elseif ($request->payment_type == 'wallet_payment') {
+        } elseif ($request->payment_type == 'wallet_payment') {
             return $this->initialize($request->amount);
         }
     }
@@ -31,19 +31,20 @@ class FlutterwavePaymentController extends Controller
     {
         //This generates a payment reference
         $reference = Flutterwave::generateReference();
+        $user = User::find(session('user_id'));
 
         // Enter the details of the payment
         $data = [
             'payment_options' => 'card,banktransfer',
             'amount' => $amount,
-            'email' => auth()->user()->email,
+            'email' => $user->email,
             'tx_ref' => $reference,
             'currency' => env('FLW_PAYMENT_CURRENCY_CODE'),
             'redirect_url' => route('flutterwave.callback'),
             'customer' => [
-                'email' => auth()->user()->email,
-                "phone_number" => auth()->user()->phone,
-                "name" => auth()->user()->name
+                'email' => $user->email,
+                "phone_number" => $user->phone,
+                "name" => $user->name
             ],
 
             "customizations" => [
@@ -55,7 +56,7 @@ class FlutterwavePaymentController extends Controller
         $payment = Flutterwave::initializePayment($data);
 
         if ($payment['status'] !== 'success') {
-            $redirect_to = session('redirect_to')."?".session('payment_type')."=failed&order_code=".session('order_code')."&payment_method=".session('payment_method');
+            $redirect_to = session('redirect_to') . "?" . session('payment_type') . "=failed&order_code=" . session('order_code') . "&payment_method=" . session('payment_method');
             return redirect($redirect_to);
         }
 
@@ -75,12 +76,12 @@ class FlutterwavePaymentController extends Controller
             $transactionID = Flutterwave::getTransactionIDFromCallback();
             $data = Flutterwave::verifyTransaction($transactionID);
 
-            try{
+            try {
                 $payment = $data['data'];
 
-                if($payment['status'] == "successful"){
+                if ($payment['status'] == "successful") {
                     if (session('payment_type') == 'cart_payment') {
-                        $order = Order::where('code',session('order_code'))->first();
+                        $order = Order::where('code', session('order_code'))->first();
                         $ordercontroller = new OrderController;
                         $ordercontroller->paymentDone($order, session('payment_method'), json_encode($payment));
                     }
@@ -94,7 +95,7 @@ class FlutterwavePaymentController extends Controller
                         $walletController->wallet_payment_done($payment_data, json_encode($payment));
                     }
 
-                    $redirect_to = session('redirect_to')."?".session('payment_type')."=success&order_code=".session('order_code');
+                    $redirect_to = session('redirect_to') . "?" . session('payment_type') . "=success&order_code=" . session('order_code');
 
                     session()->forget('redirect_to');
                     session()->forget('amount');
@@ -105,19 +106,17 @@ class FlutterwavePaymentController extends Controller
 
                     return redirect($redirect_to);
                 }
-            }
-            catch(Exception $e){
-                $redirect_to = session('redirect_to')."?".session('payment_type')."=failed&order_code=".session('order_code')."&payment_method=".session('payment_method');
+            } catch (Exception $e) {
+                $redirect_to = session('redirect_to') . "?" . session('payment_type') . "=failed&order_code=" . session('order_code') . "&payment_method=" . session('payment_method');
                 return redirect($redirect_to);
             }
-        }
-        elseif ($status ==  'cancelled'){
+        } elseif ($status ==  'cancelled') {
             //Put desired action/code after transaction has been cancelled here
-            $redirect_to = session('redirect_to')."?".session('payment_type')."=failed&order_code=".session('order_code')."&payment_method=".session('payment_method');
+            $redirect_to = session('redirect_to') . "?" . session('payment_type') . "=failed&order_code=" . session('order_code') . "&payment_method=" . session('payment_method');
             return redirect($redirect_to);
         }
         //Put desired action/code after transaction has failed here
-        $redirect_to = session('redirect_to')."?".session('payment_type')."=failed&order_code=".session('order_code')."&payment_method=".session('payment_method');
+        $redirect_to = session('redirect_to') . "?" . session('payment_type') . "=failed&order_code=" . session('order_code') . "&payment_method=" . session('payment_method');
         return redirect($redirect_to);
     }
 }

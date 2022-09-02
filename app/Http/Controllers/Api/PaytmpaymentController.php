@@ -28,7 +28,7 @@ class PaytmPaymentController extends Controller
                 'order' => $order->id,
                 'user' => $user->id,
                 'mobile_number' => $user->phone,
-                'email' => $user->email,
+                'email' => $user->email != null ? $user->email :"customer@example.com",
                 'amount' => $amount,
                 'callback_url' => route('paytm.callback')
             ]);
@@ -41,7 +41,7 @@ class PaytmPaymentController extends Controller
                 'order' => rand(10000,99999),
                 'user' => $user->id,
                 'mobile_number' => $user->phone,
-                'email' => $user->email,
+                'email' => $user->email != null ? $user->email :"customer@example.com",
                 'amount' => $amount,
                 'callback_url' => route('paytm.callback')
             ]);

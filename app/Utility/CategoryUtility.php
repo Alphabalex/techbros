@@ -21,7 +21,6 @@ class CategoryUtility
         $children = CategoryUtility::get_immediate_children($id, $with_trashed, true);
 
         return !empty($children) ? array_column($children, 'id') : array();
-
     }
 
     public static function get_immediate_children_count($id, $with_trashed = false)
@@ -30,7 +29,7 @@ class CategoryUtility
     }
 
     /*when with trashed is true id will get even the deleted items*/
-    public static function flat_children($id, $with_trashed = false, $container = array(),$limit = false)
+    public static function flat_children($id, $with_trashed = false, $container = array(), $limit = false)
     {
         $children = CategoryUtility::get_immediate_children($id, $with_trashed, true);
 
@@ -39,7 +38,6 @@ class CategoryUtility
 
                 $container[] = $child;
                 $container = CategoryUtility::flat_children($child['id'], $with_trashed, $container);
-
             }
         }
 
@@ -63,10 +61,10 @@ class CategoryUtility
         CategoryUtility::move_level_up($id);
 
         Category::whereIn('id', $children_ids)->update(['parent_id' => $category->parent_id]);
-
     }
 
-    public static function move_level_up($id){
+    public static function move_level_up($id)
+    {
         if (CategoryUtility::get_immediate_children_ids($id, true) > 0) {
             foreach (CategoryUtility::get_immediate_children_ids($id, true) as $value) {
                 $category = Category::find($value);
@@ -77,7 +75,8 @@ class CategoryUtility
         }
     }
 
-    public static function move_level_down($id){
+    public static function move_level_down($id)
+    {
         if (CategoryUtility::get_immediate_children_ids($id, true) > 0) {
             foreach (CategoryUtility::get_immediate_children_ids($id, true) as $value) {
                 $category = Category::find($value);
@@ -95,6 +94,18 @@ class CategoryUtility
             CategoryUtility::move_children_to_parent($category->id);
             $category->delete();
         }
+    }
 
+    public static function get_grand_parent_id($id)
+    {
+
+        $category = Category::where('id',$id)->first();
+        if($category == null){
+            return null;
+        }
+        if ($category['level'] > 0) {
+            return self::get_grand_parent_id($category->parentCategory->id);
+        }
+        return $id;
     }
 }

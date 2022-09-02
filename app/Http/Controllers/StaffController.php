@@ -48,8 +48,10 @@ class StaffController extends Controller
     public function store(Request $request)
     {
         if(User::where('email', $request->email)->first() == null){
+            $admin = User::where('user_type','admin')->first();
             $user             = new User;
             $user->name       = $request->name;
+            $user->shop_id    = $admin->shop_id;
             $user->email      = $request->email;
             $user->phone      = $request->mobile;
             $user->user_type  = "staff";

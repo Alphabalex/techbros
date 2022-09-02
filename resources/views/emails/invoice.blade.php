@@ -122,21 +122,21 @@
                                         <td class="">
                                             <span class=" ">{{ translate('Order Code') }}:</span>
                                             <span class="bold"
-                                                style="color: #ED2939">{{ $order->code }}</span>
+                                                style="color: #ED2939">{{ $combined_order->code }}</span>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="">
                                             <span class=" ">{{ translate('Order Date') }}:</span>
                                             <span
-                                                class="bold">{{ $order->created_at->format('d.m.Y') }}</span>
+                                                class="bold">{{ $combined_order->created_at->format('d.m.Y') }}</span>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>
                                             <span class=" ">{{ translate('Delivery type') }}:</span>
                                             <span class="bold"
-                                                style="text-transform: capitalize">{{ translate($order->delivery_type) }}</span>
+                                                style="text-transform: capitalize">{{ translate($combined_order->orders->first()->delivery_type) }}</span>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -152,7 +152,7 @@
                 <table class="">
                     <tbody>
                         @php
-                            $billing_address = json_decode($order->billing_address);
+                            $billing_address = json_decode($combined_order->billing_address);
                         @endphp
                         <tr>
                             <td class="bold">{{ translate('Billing address') }}:</td>
@@ -176,7 +176,7 @@
                 <table class="text-right">
                     <tbody>
                         @php
-                            $shipping_address = json_decode($order->shipping_address);
+                            $shipping_address = json_decode($combined_order->shipping_address);
                         @endphp
                         <tr>
                             <td class="bold">{{ translate('Shipping address') }}:</td>
@@ -215,40 +215,49 @@
         <div style="margin:8px;">
             <table class="lg-padding" style="border-collapse: collapse">
                 <tr>
-                    <th width="6%" class="text-left"></th>
-                    <th width="44%" class="text-left"></th>
+                    <th width="50%" class="text-left"></th>
                     <th width="13%" class="text-left"></th>
                     <th width="15%" class="text-left"></th>
                     <th width="9%" class="text-left"></th>
                     <th width="14%" class="text-right"></th>
                 </tr>
                 <tbody class="strong">
-                    @foreach ($order->orderDetails as $key => $orderDetail)
-                        @if ($orderDetail->product != null)
-                            <tr>
-                                <td style="border-bottom:1px solid #DEDEDE;padding-left:20px">{{ $key + 1 }}</td>
-                                <td style="border-bottom:1px solid #DEDEDE;">
-                                    <span style="display: block">{{ $orderDetail->product->name }}</span>
-                                    @if ($orderDetail->variation && $orderDetail->variation->combinations->count() > 0)
-                                        @foreach ($orderDetail->variation->combinations as $combination)
-                                            <span style="margin-right:10px">
-                                                <span
-                                                    class="">{{ $combination->attribute->getTranslation('name') }}</span>:
-                                                <span>{{ $combination->attribute_value->getTranslation('name') }}</span>
-                                            </span>
-                                        @endforeach
-                                    @endif
-                                </td>
-                                <td class="" style="border-bottom:1px solid #DEDEDE;">
-                                    {{ $orderDetail->quantity }}</td>
-                                <td class="" style="border-bottom:1px solid #DEDEDE;">
-                                    {{ format_price($orderDetail->price) }}</td>
-                                <td class="" style="border-bottom:1px solid #DEDEDE;">
-                                    {{ format_price($orderDetail->tax) }}</td>
-                                <td class="text-right bold" style="border-bottom:1px solid #DEDEDE;padding-right:20px;">
-                                    {{ format_price($orderDetail->total) }}</td>
-                            </tr>
-                        @endif
+                    
+                    @php
+                        $totalTax = 0;
+                        $total = 0;
+                    @endphp
+                    @foreach ($combined_order->orders as $order)
+                        @foreach ($order->orderDetails as $key => $orderDetail)
+                            @if ($orderDetail->product != null)
+                                <tr>
+                                    <td style="border-bottom:1px solid #DEDEDE;">
+                                        <span style="display: block">{{ $orderDetail->product->name }}</span>
+                                        @if ($orderDetail->variation && $orderDetail->variation->combinations->count() > 0)
+                                            @foreach ($orderDetail->variation->combinations as $combination)
+                                                <span style="margin-right:10px">
+                                                    <span
+                                                        class="">{{ $combination->attribute->getTranslation('name') }}</span>:
+                                                    <span>{{ $combination->attribute_value->getTranslation('name') }}</span>
+                                                </span>
+                                            @endforeach
+                                        @endif
+                                    </td>
+                                    <td class="" style="border-bottom:1px solid #DEDEDE;">
+                                        {{ $orderDetail->quantity }}</td>
+                                    <td class="" style="border-bottom:1px solid #DEDEDE;">
+                                        {{ format_price($orderDetail->price) }}</td>
+                                    <td class="" style="border-bottom:1px solid #DEDEDE;">
+                                        {{ format_price($orderDetail->tax) }}</td>
+                                    <td class="text-right bold" style="border-bottom:1px solid #DEDEDE;padding-right:20px;">
+                                        {{ format_price($orderDetail->total) }}</td>
+                                </tr>
+                            @endif
+                            @php
+                                $totalTax = $orderDetail->tax * $orderDetail->quantity;
+                                $total = $orderDetail->total;
+                            @endphp
+                        @endforeach
                     @endforeach
                 </tbody>
             </table>
@@ -256,30 +265,15 @@
 
         <div style="margin:15px 8px;clear:both">
             <div style="float: left; width:43%;padding:14px 20px;">
-                @if ($order->payment_status == 'paid')
-                    <div class="mt-5">
-                        <img src="{{ static_asset('assets/img/paid_sticker.svg') }}">
-                    </div>
-                @elseif($order->payment_type == 'cash_on_delivery')
-                    <div class="mt-5">
-                        <img src="{{ static_asset('assets/img/cod_sticker.svg') }}">
-                    </div>
-                @endif
             </div>
             <div style="float: right; width:43%;padding:14px 20px; border:1px solid #DEDEDE;border-radius:3px;">
                 <table class="text-right sm-padding" style="border-collapse:collapse">
                     <tbody>
-                        @php
-                            $totalTax = 0;
-                            foreach ($order->orderDetails as $item) {
-                                $totalTax += $item->tax * $item->quantity;
-                            }
-                        @endphp
                         <tr>
                             <td class="text-left" style="border-bottom:1px dotted #B8B8B8">
                                 {{ translate('Sub Total') }}</td>
                             <td class="bold" style="border-bottom:1px dotted #B8B8B8">
-                                {{ format_price($order->orderDetails->sum('total') - $totalTax) }}</td>
+                                {{ format_price($total - $totalTax) }}</td>
                         </tr>
                         <tr class="">
                             <td class="text-left" style="border-bottom:1px dotted #B8B8B8">
@@ -291,17 +285,17 @@
                             <td class="text-left" style="border-bottom:1px dotted #B8B8B8">
                                 {{ translate('Shipping Cost') }}</td>
                             <td class="bold" style="border-bottom:1px dotted #B8B8B8">
-                                {{ format_price($order->shipping_cost) }}</td>
+                                {{ format_price($combined_order->orders->sum('shipping_cost')) }}</td>
                         </tr>
                         <tr class="">
                             <td class="text-left" style="border-bottom:1px solid #DEDEDE">
                                 {{ translate('Coupon Discount') }}</td>
                             <td class="bold" style="border-bottom:1px solid #DEDEDE">
-                                {{ format_price($order->coupon_discount) }}</td>
+                                {{ format_price($combined_order->orders->sum('coupon_discount')) }}</td>
                         </tr>
                         <tr>
                             <td class="text-left bold">{{ translate('Grand Total') }}</td>
-                            <td class="bold">{{ format_price($order->grand_total) }}</td>
+                            <td class="bold">{{ format_price($combined_order->grand_total) }}</td>
                         </tr>
                     </tbody>
                 </table>

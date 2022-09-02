@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Currency;
 use App\Models\Setting;
+use App\Models\Shop;
+use App\Models\User;
+use App\Services\ShopService;
 use Artisan;
 use CoreComponentRepository;
 
@@ -24,6 +27,11 @@ class SettingController extends Controller
     {
         CoreComponentRepository::instantiateShopRepository();
     	return view('backend.settings.general_settings');
+    }
+
+    public function otp_settings(Request $request)
+    {
+    	return view('backend.settings.otp');
     }
 
     public function social_login(Request $request)
@@ -79,7 +87,7 @@ class SettingController extends Controller
             }
         }
 
-        Artisan::call('cache:clear');
+        cache_clear();
 
         flash(translate("Settings updated successfully"))->success();
         return back();
@@ -93,7 +101,7 @@ class SettingController extends Controller
     public function google_analytics_update(Request $request)
     {
         foreach ($request->types as $key => $type) {
-                $this->overWriteEnvFile($type, $request[$type]);
+            $this->overWriteEnvFile($type, $request[$type]);
         }
 
         $business_settings = Setting::where('type', 'google_analytics')->first();
@@ -107,7 +115,7 @@ class SettingController extends Controller
             $business_settings->save();
         }
 
-        Artisan::call('cache:clear');
+        cache_clear();
 
         flash(translate("Settings updated successfully"))->success();
         return back();
@@ -130,7 +138,7 @@ class SettingController extends Controller
             $business_settings->save();
         }
 
-        Artisan::call('cache:clear');
+        cache_clear();
 
         flash(translate("Settings updated successfully"))->success();
         return back();
@@ -158,6 +166,8 @@ class SettingController extends Controller
             $business_settings->value = 0;
             $business_settings->save();
         }
+        
+        cache_clear();
 
         flash(translate("Settings updated successfully"))->success();
         return back();
@@ -180,7 +190,7 @@ class SettingController extends Controller
             $business_settings->save();
         }
         
-        Artisan::call('cache:clear');
+        cache_clear();
 
         flash(translate("Settings updated successfully"))->success();
         return back();
@@ -225,6 +235,10 @@ class SettingController extends Controller
         }
     }
 
+    public function initSetting(){
+		//
+    }
+
 
     /**
      * Update sell verification form.
@@ -266,7 +280,16 @@ class SettingController extends Controller
             }
         }
 
-        Artisan::call('cache:clear');
+        cache_clear();
+
+        flash(translate("Settings updated successfully"))->success();
+        return back();
+    }
+
+    public function shop_update(Request $request){
+        $shop = auth()->user()->shop;
+        $shop->min_order = $request->min_order;
+        $shop->save();
 
         flash(translate("Settings updated successfully"))->success();
         return back();
@@ -302,7 +325,7 @@ class SettingController extends Controller
             $business_settings->value = $request->value;
             $business_settings->save();
         }
-        Artisan::call('cache:clear');
+        cache_clear();
         return '1';
     }
 
@@ -343,7 +366,7 @@ class SettingController extends Controller
         $business_settings->save();
 
         
-        Artisan::call('cache:clear');
+        cache_clear();
         return back();
     }
 }

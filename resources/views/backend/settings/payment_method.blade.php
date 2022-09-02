@@ -318,12 +318,12 @@
                         <div class="form-group row">
                             <input type="hidden" name="types[]" value="FLW_SECRET_HASH">
                             <div class="col-lg-4">
-                                <label class="col-from-label">{{ translate('FLW_SECRET_HASH') }}</label>
+                                <label class="col-from-label">{{ translate('FLW_ENCRYPTION_KEY') }}</label>
                             </div>
                             <div class="col-lg-8">
                                 <input type="text" class="form-control" name="FLW_SECRET_HASH"
                                     value="{{ env('FLW_SECRET_HASH') }}"
-                                    placeholder="{{ translate('FLW_SECRET_HASH') }}" required>
+                                    placeholder="{{ translate('FLW_ENCRYPTION_KEY') }}" required>
                             </div>
                         </div>
                         <div class="form-group row">
@@ -423,6 +423,51 @@
                             <div class="col-lg-6">
                                 <input type="text" class="form-control" name="PAYTM_INDUSTRY_TYPE"
                                     value="{{ env('PAYTM_INDUSTRY_TYPE') }}" placeholder="PAYTM INDUSTRY TYPE">
+                            </div>
+                        </div>
+                        <div class="form-group mb-0 text-right">
+                            <button type="submit" class="btn btn-sm btn-primary">{{ translate('Save') }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0 h6 ">{{ translate('Razorpay Credential') }}</h5>
+                </div>
+                <div class="card-body">
+                    <form class="form-horizontal" action="{{ route('payment_method.update') }}" method="POST">
+                        @csrf
+
+                        <div class="form-group row">
+                            <div class="col-md-4">
+                                <label class="col-from-label">{{ translate('Activation') }}</label>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="aiz-switch aiz-switch-success mb-0">
+                                    <input type="checkbox" onchange="updateSettings(this, 'razorpay_payment')" @if (get_setting('razorpay_payment') == 1) checked @endif>
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <input type="hidden" name="types[]" value="RAZOR_KEY">
+                            <div class="col-lg-4">
+                                <label class="col-from-label">{{ translate('Razorpay Key') }}</label>
+                            </div>
+                            <div class="col-lg-6">
+                                <input type="text" class="form-control" name="RAZOR_KEY" value="{{ env('RAZOR_KEY') }}" placeholder="Key">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <input type="hidden" name="types[]" value="RAZOR_SECRET">
+                            <div class="col-lg-4">
+                                <label class="col-from-label">{{ translate('Razorpay Secret') }}</label>
+                            </div>
+                            <div class="col-lg-6">
+                                <input type="text" class="form-control" name="RAZOR_SECRET" value="{{ env('RAZOR_SECRET') }}" placeholder="secret">
                             </div>
                         </div>
                         <div class="form-group mb-0 text-right">

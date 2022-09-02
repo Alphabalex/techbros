@@ -2,21 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Resources\AllCategoryCollection;
 use App\Http\Resources\AttributeCollection;
 use App\Http\Resources\BrandCollection;
 use App\Http\Resources\CategoryCollection;
 use App\Http\Resources\CategorySingleCollection;
 use App\Http\Resources\ProductCollection;
 use App\Http\Resources\ProductSingleCollection;
-use App\Http\Resources\OfferCollection;
 use App\Models\Brand;
 use App\Models\Category;
-use App\Models\Offer;
-use App\Models\OfferProduct;
 use App\Models\Product;
-use App\Models\ProductCategory;
-use App\Models\Shop;
 use App\Models\Attribute;
 use App\Models\AttributeCategory;
 use App\Models\OrderDetail;
@@ -32,7 +26,13 @@ class ProductController extends Controller
 
     public function show($product_slug)
     {
-        $product = Product::where('published', 1)->where('slug', $product_slug)->with(['brand', 'variations', 'variation_combinations'])->withCount(['reviews', 'reviews_1', 'reviews_2', 'reviews_3', 'reviews_4', 'reviews_5'])->first();
+        $product = filter_products(Product::query())
+            ->where('slug', $product_slug)
+            ->with(['brand', 'variations', 'variation_combinations','shop' => function($query){
+                $query->withCount('reviews');
+            }])
+            ->withCount(['reviews', 'reviews_1', 'reviews_2', 'reviews_3', 'reviews_4', 'reviews_5'])
+            ->first();
         if ($product) {
             return new ProductSingleCollection($product);
         } else {
@@ -47,7 +47,7 @@ class ProductController extends Controller
     public function get_by_ids(Request $request)
     {
         if ($request->has('product_ids') && is_array($request->product_ids)) {
-            return new ProductCollection(Product::whereIn('id', $request->product_ids)->get());
+            return new ProductCollection(filter_products(Product::whereIn('id', $request->product_ids))->get());
         } else {
             return response()->json([
                 'success' => false,
@@ -59,7 +59,7 @@ class ProductController extends Controller
 
     public function related($product_id)
     {
-        $products = Product::where('published', 1)->whereHas('product_categories', function ($query) use ($product_id) {
+        $products = filter_products(Product::query())->whereHas('product_categories', function ($query) use ($product_id) {
             $query->whereIn('category_id', Product::find($product_id)->product_categories->pluck('category_id')->toArray());
         })->where('id', '!=', $product_id)->limit(10)->get();
         return new ProductCollection($products);
@@ -69,17 +69,17 @@ class ProductController extends Controller
     {
         $order_ids = OrderDetail::where('product_id', $product_id)->pluck('order_id')->toArray();
         $product_ids = OrderDetail::distinct()->whereIn('order_id', $order_ids)->where('product_id', '!=', $product_id)->pluck('product_id')->toArray();
-        $products = Product::where('published', 1)->whereIn('id', $product_ids)->limit(10)->get();
+        $products = filter_products(Product::whereIn('id', $product_ids))->limit(10)->get();
         return new ProductCollection($products);
     }
 
     public function random_products($limit, $product_id = null)
     {
-        return new ProductCollection(Product::where('published', 1)->where('id', '!=', $product_id)->inRandomOrder()->limit($limit)->get());
+        return new ProductCollection(filter_products(Product::where('id', '!=', $product_id))->inRandomOrder()->limit($limit)->get());
     }
     public function latest_products($limit)
     {
-        return new ProductCollection(Product::where('published', 1)->latest()->limit($limit)->get());
+        return new ProductCollection(filter_products(Product::query())->latest()->limit($limit)->get());
     }
 
     public function search(Request $request)
@@ -94,7 +94,7 @@ class ProductController extends Controller
         $attributes                 = Attribute::with('attribute_values')->get();
         $selected_attribute_values  = $request->attribute_values ? explode(',',$request->attribute_values) : null;
 
-        $products = Product::with(['variations'])->where('published', 1);
+        $products = filter_products(Product::with(['variations']));
 
         //brand check
         if ($brand_ids != null) {
@@ -110,7 +110,6 @@ class ProductController extends Controller
                 }
             });
         }
-
 
         // category + child category check
         if ($category_id != null) {
@@ -182,6 +181,7 @@ class ProductController extends Controller
 
         return response()->json([
             'success' => true,
+            'metaTitle' => $category ? $category->meta_title : get_setting('meta_title'),
             'products' => $collection,
             'totalPage' => $collection->lastPage(),
             'currentPage' => $collection->currentPage(),

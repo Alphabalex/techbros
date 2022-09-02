@@ -31,7 +31,6 @@
                             <tr>
                                 <th>#</th>
                                 <th>{{ translate('Name') }}</th>
-                                <th>{{ translate('Status') }}</th>
                                 <th class="text-right">{{ translate('Options') }}</th>
                             </tr>
                         </thead>
@@ -40,13 +39,6 @@
                                 <tr>
                                     <td>{{ $key + 1 + ($taxes->currentPage() - 1) * $taxes->perPage() }}</td>
                                     <td>{{ $tax->name }}</td>
-                                    <td>
-                                        <label class="aiz-switch aiz-switch-success mb-0">
-                                            <input type="checkbox" onchange="update_tax_status(this)"
-                                                value="{{ $tax->id }}" @if ($tax->status == 1) checked @endif>
-                                            <span></span>
-                                        </label>
-                                    </td>
                                     <td class="text-right">
                                         @can('edit_taxes')
                                             <a class="btn btn-soft-primary btn-icon btn-circle btn-sm"
@@ -100,31 +92,4 @@
 
 @section('modal')
     @include('backend.inc.delete_modal')
-@endsection
-
-@section('script')
-    <script type="text/javascript">
-        function sort_taxes(el) {
-            $('#sort_taxes').submit();
-        }
-
-        function update_tax_status(el) {
-            if (el.checked) {
-                var status = 1;
-            } else {
-                var status = 0;
-            }
-            $.post('{{ route('tax.status_update') }}', {
-                _token: '{{ csrf_token() }}',
-                id: el.value,
-                status: status
-            }, function(data) {
-                if (data == 1) {
-                    AIZ.plugins.notify('success', '{{ translate('Tax Status updated successfully') }}');
-                } else {
-                    AIZ.plugins.notify('danger', '{{ translate('Something went wrong') }}');
-                }
-            });
-        }
-    </script>
 @endsection

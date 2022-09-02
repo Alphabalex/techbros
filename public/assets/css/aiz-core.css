@@ -6246,6 +6246,10 @@ button:hover .aiz-mobile-toggler span:after {
     transition: all 0.3s;
     -webkit-transition: all 0.3s;
 }
+.layout-2 .aiz-topbar{
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
 .aiz-topbar-logo-wrap img {
     height: 30px;
 }
@@ -6273,9 +6277,17 @@ button:hover .aiz-mobile-toggler span:after {
         width: calc(100% - 265px);
         left: 265px;
     }
+    .layout-2 .aiz-topbar{
+        left: 0;
+        width: 100%;
+    }
     [dir="rtl"] .aiz-topbar {
         left: auto;
         right: 265px;
+    }
+    [dir="rtl"] .layout-2 .aiz-topbar {
+        left: 0;
+        right: 0;
     }
     .side-menu-closed .aiz-topbar {
         left: 0;
@@ -6323,6 +6335,12 @@ button:hover .aiz-mobile-toggler span:after {
     width: 265px;
     -webkit-transition: left 0.3s ease;
     transition: left 0.3s ease;
+}
+@media (min-width: 1200px) {
+    .layout-2 .aiz-sidebar{
+        top: 80px;
+        height: calc(100vh - 80px);
+    }
 }
 [dir="rtl"] .aiz-sidebar.left {
     left: auto;
@@ -6375,6 +6393,17 @@ button:hover .aiz-mobile-toggler span:after {
     font-weight: 400;
     color: #fff;
     text-transform: capitalize;
+}
+.layout-2 .aiz-side-nav-list .aiz-side-nav-link{
+    color: #444444;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 12px 10px;
+    margin-bottom: 5px;
+    border-radius: 6px;
+}
+.layout-2 .aiz-side-nav-list .aiz-side-nav-link svg *{
+    fill: #BDBDBD 
 }
 .aiz-side-nav-list .aiz-side-nav-link > svg {
     margin-right: 20px;
@@ -6451,8 +6480,14 @@ button:hover .aiz-mobile-toggler span:after {
     position: relative;
     font-size: 0.8125rem;
 }
+.layout-2 .aiz-side-nav-list .level-2 .aiz-side-nav-link {
+    padding: 10px 25px 10px 45px;
+}
 [dir="rtl"] .aiz-side-nav-list .level-2 .aiz-side-nav-link {
     padding: 10px 54px 10px 25px;
+}
+[dir="rtl"] .layout-2 .aiz-side-nav-list .level-2 .aiz-side-nav-link {
+    padding: 10px 45px 10px 25px;
 }
 .aiz-side-nav-list .level-3 .aiz-side-nav-link {
     padding-left: 68px;
@@ -6470,12 +6505,19 @@ button:hover .aiz-mobile-toggler span:after {
     -webkit-transition: all 0.3s ease;
     transition: all 0.3s ease;
 }
+.layout-2 .aiz-side-nav-list .level-2 .aiz-side-nav-link:after {
+    left: 20px;
+}
 .aiz-side-nav-list .level-3 .aiz-side-nav-link:after {
     left: 54px;
 }
 [dir="rtl"] .aiz-side-nav-list .level-2 .aiz-side-nav-link:after {
     left: 0px;
     right: 40px;
+}
+[dir="rtl"] .layout-2 .aiz-side-nav-list .level-2 .aiz-side-nav-link:after {
+    left: 0px;
+    right: 20px;
 }
 [dir="rtl"] .aiz-side-nav-list .level-3 .aiz-side-nav-link:after {
     right: 54px;
@@ -6500,6 +6542,22 @@ button:hover .aiz-mobile-toggler span:after {
 .aiz-side-nav-list .level-2 .aiz-side-nav-link:hover:after,
 .aiz-side-nav-list .level-2 .aiz-side-nav-link.active:after {
     background: #707070;
+}
+
+.layout-2 .aiz-side-nav-list .aiz-side-nav-link:hover,
+.layout-2 .aiz-side-nav-list .aiz-side-nav-link.level-2-active,
+.layout-2 .aiz-side-nav-list .aiz-side-nav-link.level-3-active,
+.layout-2 .aiz-side-nav-list .aiz-side-nav-link.active{
+    background-color: var(--primary);
+    color: #fff;
+}
+.layout-2 .aiz-side-nav-list .aiz-side-nav-link:hover > svg,
+.layout-2 .aiz-side-nav-list .aiz-side-nav-link:hover > svg *,
+.layout-2 .aiz-side-nav-list .aiz-side-nav-link.active > svg,
+.layout-2 .aiz-side-nav-list .aiz-side-nav-link.active > svg *,
+.layout-2 .aiz-side-nav-list .aiz-side-nav-link.level-2-active > svg,
+.layout-2 .aiz-side-nav-list .aiz-side-nav-link.level-2-active > svg * {
+    fill: #fff;
 }
 
 /* xl */
@@ -7396,8 +7454,8 @@ button:hover .aiz-mobile-toggler span:after {
 }
 .aiz-pos-cart-list {
     overflow-y: auto;
-    max-height: calc(100vh - 490px);
-    height: calc(100vh - 490px);
+    max-height: calc(100vh - 550px);
+    height: calc(100vh - 550px);
     overflow-x: hidden;
 }
 
@@ -9797,4 +9855,24 @@ ul.social.colored [class*="linkedin"] {
     padding: 0;
     text-align: center;
     line-height: 30px;
+}
+.ml--10{
+    margin-left: -10px !important;
+}
+
+.hw-32px{
+    height:32px !important;
+    width:32px !important;
+}
+
+.bg-pos-gray{
+    background-color: #FAFAFA;
+}
+
+.discount-popover{
+    left: -93.5% !important;
+}
+
+.aiz-pos-cart-list .list-group-item {
+    background-color: initial !important;
 }

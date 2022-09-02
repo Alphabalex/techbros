@@ -7,8 +7,10 @@ use URL;
 use DB;
 use Hash;
 use App\Models\Setting;
+use App\Models\Shop;
 use App\Models\User;
 use CoreComponentRepository;
+use Str;
 
 class InstallController extends Controller
 {
@@ -18,6 +20,7 @@ class InstallController extends Controller
     }
 
     public function step1() {
+
         $permission['curl_enabled']           = function_exists('curl_version');
         $permission['db_file_write_perm']     = is_writable(base_path('.env'));
         $permission['routes_file_write_perm'] = is_writable(base_path('app/Providers/RouteServiceProvider.php'));
@@ -62,6 +65,19 @@ class InstallController extends Controller
         $user->password  = Hash::make($request->admin_password);
         $user->email_verified_at = date('Y-m-d H:m:s');
         $user->save();
+
+        $admin_shop = new Shop();
+        $admin_shop->user_id = $user->id;
+        $admin_shop->name = 'Inhouse Shop';
+        $admin_shop->slug = Str::slug($admin_shop->name, '-');
+        $admin_shop->approval = 1;
+        $admin_shop->published = 1;
+        $admin_shop->save();
+
+        $user->shop_id = $admin_shop->id;
+        $user->save();
+        
+        (new DemoController)->insert_trasnalation_keys();
 
         $previousRouteServiceProvier = base_path('app/Providers/RouteServiceProvider.php');
         $newRouteServiceProvier      = base_path('app/Providers/RouteServiceProvider.txt');

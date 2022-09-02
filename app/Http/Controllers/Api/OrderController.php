@@ -10,21 +10,31 @@ use App\Models\Address;
 use App\Http\Resources\OrderCollection;
 use App\Http\Resources\OrderSingleCollection;
 use App\Models\City;
+use App\Models\CombinedOrder;
+use App\Models\CommissionHistory;
+use App\Models\Coupon;
+use App\Models\CouponUsage;
 use App\Models\Language;
+use App\Models\ManualPaymentMethod;
+use App\Models\OrderUpdate;
+use App\Models\Shop;
+use App\Models\Wallet;
 use App\Notifications\OrderPlacedNotification;
 use PDF;
 use DB;
+use Notification;
+use stdClass;
 
 class OrderController extends Controller
 {
     public function index()
     {
-        return new OrderCollection(Order::with(['user','orderDetails'])->where('user_id', auth('api')->user()->id)->latest()->paginate(12));
+        return new OrderCollection(CombinedOrder::with(['user','orders.orderDetails.variation.product','orders.orderDetails.variation.combinations','orders.shop'])->where('user_id', auth('api')->user()->id)->latest()->paginate(12));
     }
 
     public function show($order_code)
     {
-        $order = Order::where('code',$order_code)->with(['user','orderDetails.variation.product','orderDetails.variation.combinations'])->first();
+        $order = CombinedOrder::where('code',$order_code)->with(['user','orders.orderDetails.variation.product','orders.orderDetails.variation.combinations','orders.shop'])->first();
         if($order){
             if(auth('api')->user()->id == $order->user_id){
                 return new OrderSingleCollection($order);
@@ -126,9 +136,9 @@ class OrderController extends Controller
         }
     }
 
-    public function cancel($order_code)
+    public function cancel($order_id)
     {
-        $order = Order::where('code',$order_code)->first();
+        $order = Order::findOrFail($order_id);
         if(auth('api')->user()->id !==  $order->user_id){
             return response()->json(null, 401);
         }
@@ -173,17 +183,7 @@ class OrderController extends Controller
         $shippingAddress = Address::find($request->shipping_address_id);
         $billingAddress = Address::find($request->billing_address_id);
         $shippingCity = City::with('zone')->find($shippingAddress->city_id);
-
-        $subTotal = 0;
-        $shipping = 0;
-        $tax = 0;
-        foreach ($cartItems as $cartItem) {
-            $itemPriceWithoutTax = variation_discounted_price($cartItem->variation->product,$cartItem->variation,false)*$cartItem->quantity;
-            $itemTax = product_variation_tax($cartItem->variation->product,$cartItem->variation)*$cartItem->quantity;
-
-            $subTotal += $itemPriceWithoutTax;
-            $tax += $itemTax;
-        }
+        $user = auth('api')->user();
 
         if($cartItems->count() < 1)
             return response()->json([
@@ -224,163 +224,241 @@ class OrderController extends Controller
             }
         }
 
-
         if($request->delivery_type == 'standard'){
-            $shipping = $shippingCity->zone->standard_delivery_cost;
+            $shipping_cost = $shippingCity->zone->standard_delivery_cost;
         }elseif($request->delivery_type == 'express'){
-            $shipping = $shippingCity->zone->express_delivery_cost;
+            $shipping_cost = $shippingCity->zone->express_delivery_cost;
         }
 
-        $coupon_discount = 0;
-        $total = $subTotal + $shipping + $tax;
-
-        // coupon check
-        if ($request->coupon_code && $request->coupon_code != '') {
-
-            $coupon = (new CouponController)->apply($request)->getData();
-
-            if(!$coupon->success){
-                return response()->json([
-                    'success' => false,
-                    'message' => $coupon->message
-                ]);
+        // generate array of shops cart items
+        $shops_cart_items = array();
+        foreach ($cartItems as $cartItem){
+            $cart_ids = array();
+            $product = $cartItem->variation->product;
+            if(isset($shops_cart_items[$product->shop_id])){
+                $cart_ids = $shops_cart_items[$product->shop_id];
             }
-            if($coupon->coupon_details->coupon_type == 'cart_base'){
+            array_push($cart_ids, $cartItem->id);
 
-                if($coupon->coupon_details->discount_type == 'percent'){
-                    $coupon_discount += ($total * $coupon->coupon_details->discount)/100;
-                    if ($coupon_discount > $coupon->coupon_details->conditions->max_discount) {
-                        $coupon_discount = $coupon->coupon_details->conditions->max_discount;
-                    }
-                }else if($coupon->coupon_details->discount_type == 'amount'){
-                    $coupon_discount += $coupon->coupon_details->discount;
+            $shops_cart_items[$product->shop_id] = $cart_ids;
+        }
+
+        // get coupon data based on request
+        $coupons = collect();
+        if ($request->coupon_codes && !empty($request->coupon_codes)) {
+            $coupons = Coupon::where(function ($query) use ($request) {
+                foreach ($request->coupon_codes as $coupon_code){
+                    $query->orWhere('code', $coupon_code);
+                }
+            })->get();
+        }
+
+
+
+        $combined_order = new CombinedOrder;
+        $combined_order->user_id = $user->id;
+        $combined_order->code = date('Ymd-His') . rand(10, 99);
+        $combined_order->shipping_address = json_encode($shippingAddress);
+        $combined_order->billing_address = json_encode($billingAddress);
+        $combined_order->save();
+
+        $grand_total = 0;
+
+        // all shops order place
+        $package_number = 1;
+        foreach ($shops_cart_items as $shop_id => $shop_cart_item_ids) {
+
+            $shop_cart_items = $cartItems->whereIn('id', $shop_cart_item_ids);
+            
+            $shop_subTotal = 0;
+            $shop_tax = 0;
+            $shop_coupon_discount = 0;
+
+            //shop total amount calculation
+            foreach ($shop_cart_items as $cartItem) {
+                $itemPriceWithoutTax = variation_discounted_price($cartItem->variation->product,$cartItem->variation,false)*$cartItem->quantity;
+                $itemTax = product_variation_tax($cartItem->variation->product,$cartItem->variation)*$cartItem->quantity;
+
+                $shop_subTotal += $itemPriceWithoutTax;
+                $shop_tax += $itemTax;
+            }
+            $shop_total = $shop_subTotal + $shipping_cost + $shop_tax;
+
+
+            // shop coupon check & disount calculation
+            if ($request->coupon_codes && !empty($request->coupon_codes)) {
+
+                $coupon = $coupons->firstWhere('shop_id', $shop_id);
+                if($coupon){
+                    $shop_coupon_discount = (new CouponController)->calculate_discount($coupon, $shop_total, $shop_cart_items);
+                    
+                    $shop_total -= $shop_coupon_discount;
+
+                    $coupon_usage = new CouponUsage();
+                    $coupon_usage->user_id = $user->id;
+                    $coupon_usage->coupon_id = $coupon->id;
+                    $coupon_usage->save();
+                }
+            }
+
+            // shop order place
+            $order = Order::create([
+                'user_id' => auth('api')->user()->id,
+                'shop_id' => $shop_id,
+                'combined_order_id' => $combined_order->id,
+                'code' => $package_number,
+                'shipping_address' => json_encode($shippingAddress),
+                'billing_address' => json_encode($billingAddress),
+                'shipping_cost' => $shipping_cost,
+                'grand_total' => $shop_total,
+                'coupon_code' => $coupon->code ?? null,
+                'coupon_discount' => $shop_coupon_discount,
+                'delivery_type' => $request->delivery_type,
+                'payment_type' => $request->payment_type,
+            ]);
+
+            $package_number++;
+            $grand_total += $shop_total;
+    
+
+            foreach ($shop_cart_items as $cartItem) {
+                $itemPriceWithoutTax = variation_discounted_price($cartItem->variation->product,$cartItem->variation,false);
+                $itemTax = product_variation_tax($cartItem->variation->product,$cartItem->variation);
+    
+                $orderDetail = OrderDetail::create([
+                    'order_id' => $order->id,
+                    'product_id' => $cartItem->product_id,
+                    'product_variation_id' => $cartItem->product_variation_id,
+                    'price' => $itemPriceWithoutTax,
+                    'tax' => $itemTax,
+                    'total' => ($itemPriceWithoutTax+$itemTax)*$cartItem->quantity,
+                    'quantity' => $cartItem->quantity,
+                ]);
+    
+                $cartItem->product->update([
+                    'num_of_sale' => DB::raw('num_of_sale + ' . $cartItem->quantity)
+                ]);
+    
+                foreach($orderDetail->product->categories as $category){
+                    $category->sales_amount += $orderDetail->total;
+                    $category->save();
+                }
+    
+                $brand = $orderDetail->product->brand;
+                if($brand){
+                    $brand->sales_amount += $orderDetail->total;
+                    $brand->save();
                 }
 
-            }elseif($coupon->coupon_details->coupon_type == 'product_base'){
-
-                $applicable_product_ids = array_map(function($item){
-                            return (int) $item->product_id;
-                        },$coupon->coupon_details->conditions);
-
-                foreach ($cartItems as $cartItem) {
-
-                    if(in_array($cartItem->product_id,$applicable_product_ids)){
-
-                        if($coupon->coupon_details->discount_type == 'percent'){
-
-                            $dicounted_price = variation_discounted_price($cartItem->variation->product,$cartItem->variation);
-
-                            $coupon_discount += (($dicounted_price*$coupon->coupon_details->discount)/100) * $cartItem->quantity;
-
-                        }else if($coupon->coupon_details->discount_type == 'amount'){
-                            $coupon_discount += $cartItem->quantity*$coupon->coupon_details->discount;
-                        }
-                    }
-
-                };
-
             }
-        }
-        
-        $grand_total = $total - $coupon_discount;
 
-        if($request->payment_type == 'wallet' && $grand_total > auth('api')->user()->balance){
-            return response()->json([
-                'success' => false,
-                'message' => translate('You do not have enough balance in your wallet. Please recharge your wallet or select another payment method.')
-            ]);
-        }
+            $order_price = $order->grand_total - $order->shipping_cost - $order->orderDetails->sum(function ($t) {
+                return $t->tax * $t->quantity;
+            });
 
-            
-        
-        
+            $shop_commission = Shop::find($shop_id)->commission;
+            $admin_commission = 0.00;
+            $seller_earning = $shop_total;
+            if($shop_commission > 0){
+                $admin_commission = ($shop_commission * $order_price) / 100;
+                $seller_earning = $shop_total - $admin_commission;
+            }
 
-        $order = Order::create([
-            'user_id' => auth('api')->user()->id,
-            'code' => date('Ymd-His') . rand(10, 99),
-            'shipping_address' => json_encode($shippingAddress),
-            'billing_address' => json_encode($billingAddress),
-            'shipping_cost' => $shipping,
-            'grand_total' => $grand_total,
-            'coupon_code' => $request->coupon_code,
-            'coupon_discount' => $coupon_discount,
-            'delivery_type' => $request->delivery_type,
-            'payment_type' => $request->payment_type,
-        ]);
+            $order->admin_commission = $admin_commission;
+            $order->seller_earning = $seller_earning;
+            $order->commission_percentage = $shop_commission;
+            $order->save();
 
-        foreach ($cartItems as $cartItem) {
-            $itemPriceWithoutTax = variation_discounted_price($cartItem->variation->product,$cartItem->variation,false);
-            $itemTax = product_variation_tax($cartItem->variation->product,$cartItem->variation);
-
-            $orderDetail = OrderDetail::create([
+            OrderUpdate::create([
                 'order_id' => $order->id,
-                'product_id' => $cartItem->product_id,
-                'product_variation_id' => $cartItem->product_variation_id,
-                'price' => $itemPriceWithoutTax,
-                'tax' => $itemTax,
-                'total' => ($itemPriceWithoutTax+$itemTax)*$cartItem->quantity,
-                'quantity' => $cartItem->quantity,
+                'user_id' => auth('api')->user()->id,
+                'note' => 'Order has been placed.',
             ]);
-
-            $cartItem->product->update([
-                'num_of_sale' => DB::raw('num_of_sale + ' . $cartItem->quantity)
-            ]);
-
-            foreach($orderDetail->product->categories as $category){
-                $category->sales_amount += $orderDetail->total;
-                $category->save();
-            }
-
-            $brand = $orderDetail->product->brand;
-            if($brand){
-                $brand->sales_amount += $orderDetail->total;
-                $brand->save();
-            }
+            
         }
+        
+        $combined_order->grand_total = $grand_total;
+        $combined_order->save();
 
         // clear user's cart
         Cart::destroy($request->cart_item_ids);
         
-        $user = auth('api')->user();
         if($request->payment_type == 'wallet'){
-            $user->balance -= $order->grand_total;
+            $user->balance -= $combined_order->grand_total;
             $user->save();
 
-            $this->paymentDone($order, $request->payment_type);
+            $wallet = new Wallet;
+            $wallet->user_id = $user->id;
+            $wallet->amount = $combined_order->grand_total;
+            $wallet->type = 'Deducted';
+            $wallet->details = 'Order Placed. Order Code '.$combined_order->code;
+            $wallet->save();
+
+            $this->paymentDone($combined_order, $request->payment_type);
         }
 
         try {
-            $user->notify(new OrderPlacedNotification($order));
+            Notification::send($user, new OrderPlacedNotification($combined_order));
         }catch(\Exception $e) {
 
         }
 
-        if($request->payment_type =='cash_on_delivery' || $request->payment_type == 'wallet'){
-            return response()->json([
-                'success' => true,
-                'go_to_payment' => false,
-                'grand_total' => $grand_total,
-                'payment_method' => $request->payment_type,
-                'message' => translate('Your order has been placed successfully'),
-                'order_code' => $order->code
-            ]);
+        if($request->payment_type =='cash_on_delivery' || $request->payment_type == 'wallet' || strpos($request->payment_type, 'offline_payment')  !== false){
+            $go_to_payment = false;
+            // check if offline payment type & set manual payment data from here.
+            // dd(strpos($request->payment_type, 'offline_payment'));
+            if(strpos($request->payment_type, 'offline_payment')  !== false){
+                // set manual payment data
+                $splittedPaymentMethod = explode('-', $request->payment_type);
+                $offlinePaymentId = array_pop($splittedPaymentMethod);
+                $manualPaymentMethod = ManualPaymentMethod::find((int) $offlinePaymentId);
+                
+                $manual_payment_data = new ManualPaymentMethod;
+                $manual_payment_data->transactionId = $request->transactionId;
+                $manual_payment_data->payment_method = $manualPaymentMethod->heading;
+                
+
+                // store receipt here 
+                if ($request->hasFile('receipt')) {
+                    $manual_payment_data->reciept = $request->receipt->store(
+                        'uploads/offline_payments'
+                    ); 
+                }else{
+                    $manual_payment_data->reciept = null;
+                } 
+                
+                $order->manual_payment = 1;
+                $order->manual_payment_data = json_encode($manual_payment_data);
+                $order->save();
+
+                $this->paymentDone($combined_order, 'offline_payment');
+            }
         }else{
-            return response()->json([
-                'success' => true,
-                'go_to_payment' => true,
-                'grand_total' => $grand_total,
-                'payment_method' => $request->payment_type,
-                'message' => translate('Your order has been placed successfully'),
-                'order_code' => $order->code
-            ]);
+            $go_to_payment = true;
         }
+        
+        return response()->json([
+            'success' => true,
+            'go_to_payment' => $go_to_payment,
+            'grand_total' => $grand_total,
+            'payment_method' => $request->payment_type,
+            'message' => translate('Your order has been placed successfully'),
+            'order_code' => $combined_order->code
+        ]);
     }
 
+    public function paymentDone($combined_order,$payment_method,$payment_info = null){
 
-    public function paymentDone($order,$payment_method,$payment_info = null){
-        $order->payment_status = 'paid';
-        $order->payment_type = $payment_method;
-        $order->payment_details = $payment_info;
-        $order->save();
+        foreach($combined_order->orders as $order){
+
+            // commission calculation
+            calculate_seller_commision($order);
+            
+            $order->payment_status = 'paid';
+            $order->payment_type = $payment_method;
+            $order->commission_calculated = 1;
+            $order->payment_details = $payment_info;
+            $order->save();
+        }
     }
 }

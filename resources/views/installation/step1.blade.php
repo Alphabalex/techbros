@@ -14,17 +14,18 @@
 
                         <ul class="list-group">
                             <li class="list-group-item text-semibold">
-                                Php version 7.2 +
+                                Php version 7.3 +
 
                                 @php
                                     $phpVersion = number_format((float) phpversion(), 2, '.', '');
                                 @endphp
-                                @if ($phpVersion >= 7.2)
+                                @if ($phpVersion > 7.3)
                                     <i class="la la-check text-success float-right"></i>
                                 @else
                                     <i class="la la-close text-danger float-right"></i>
                                 @endif
                             </li>
+
                             <li class="list-group-item text-semibold">
                                 Curl Enabled
 
@@ -55,7 +56,7 @@
                         </ul>
 
                         <p class="text-center mt-3">
-                            @if ($permission['curl_enabled'] == 1 && $permission['db_file_write_perm'] == 1 && $permission['routes_file_write_perm'] == 1 && $phpVersion >= 7.2)
+                            @if ($permission['curl_enabled'] == 1 && $permission['db_file_write_perm'] == 1 && $permission['routes_file_write_perm'] == 1 && $phpVersion > 7.3)
                                 @if ($_SERVER['SERVER_NAME'] == 'localhost' || $_SERVER['SERVER_NAME'] == '127.0.0.1')
                                     <a href="{{ route('step3') }}" class="btn btn-primary">Go To Next Step</a>
                                 @else

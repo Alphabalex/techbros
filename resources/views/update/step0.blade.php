@@ -10,7 +10,7 @@
                             <h1 class="h3">The Shop Update Process</h1>
                         </div>
                         <div class="text-center">
-                            <a href="{{ route('step1') }}" class="btn btn-primary text-light">
+                            <a href="{{ route('update.step1') }}" class="btn btn-primary text-light">
                                 Update Now
                             </a>
                         </div>

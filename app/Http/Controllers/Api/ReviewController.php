@@ -91,13 +91,28 @@ class ReviewController extends Controller
             ], 200);
         }
 
+        $product = Product::find($request->product_id);
+        if(!$product){
+            return response()->json([
+                'success' => false,
+                'message' => translate('This product is not avilable.')
+            ], 200);
+        }
+
         Review::updateOrCreate(
             ['user_id' => auth('api')->user()->id,'product_id' => $request->product_id],
-            ['rating' => $request->rating, 'comment' => $request->comment ]
+            ['rating' => $request->rating, 'shop_id' => $product->shop_id ,'comment' => $request->comment ]
         );
-        $product = Product::find($request->product_id);
         $product->rating = $product->reviews()->avg('rating');
         $product->save();
+
+        $shop = $product->shop;
+        if($shop){
+            $shop->rating = $shop->reviews()->avg('rating');
+            $shop->save();
+        }
+        
+        cache_clear();
 
         return response()->json([
             'success' => true,

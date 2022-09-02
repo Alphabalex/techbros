@@ -3,28 +3,24 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class OrderDetail extends Model
 {
-    use SoftDeletes;
-    
-    protected $fillable = ['order_id', 'product_id', 'product_variation_id', 'price', 'tax', 'total', 'quantity'];
+
+    protected $guarded = [];
 
     public function order()
     {
-        return $this->belongsTo(Order::class)->withTrashed();
+        return $this->belongsTo(Order::class);
     }
 
     public function product()
     {
-        return $this->belongsTo(Product::class)->withTrashed();
+        return $this->belongsTo(Product::class);
     }
 
     public function variation()
     {
-        return $this->belongsTo(ProductVariation::class,'product_variation_id');
+        return $this->belongsTo(ProductVariation::class, 'product_variation_id');
     }
-
-    
 }

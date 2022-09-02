@@ -25,7 +25,7 @@
                                 @forelse(\App\Models\Addon::all() as $key => $addon)
                                     <li class="list-group-item">
                                         <div class="d-flex align-items-center">
-                                            <img class="h-60px" src="{{ static_asset($addon->image) }}" alt="Image">
+                                            <img class="h-60px" src="{{ url($addon->image) }}" alt="Image">
                                             <div class="mr-3 ml-5">
                                                 <h4 class="fs-16 fw-600">{{ ucfirst($addon->name) }}</h4>
                                             </div>

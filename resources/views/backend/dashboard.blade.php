@@ -1,17 +1,14 @@
 @extends('backend.layouts.app')
 
 @section('content')
-    @if (env('MAIL_USERNAME') == null && env('MAIL_PASSWORD') == null)
-        <div class="">
-            <div class="alert alert-danger d-flex align-items-center">
-                {{ translate('Please Configure SMTP Setting to work all email sending functionality') }},
-                <a class="alert-link ml-2" href="{{ route('smtp_settings.index') }}">{{ translate('Configure Now') }}</a>
-            </div>
+    @if (env('MAIL_USERNAME') == null && env('MAIL_PASSWORD') == null && auth()->user()->can('smtp_setting'))
+        <div class="alert alert-danger d-flex align-items-center">
+            {{ translate('Please Configure SMTP Setting to work all email sending functionality') }},
+            <a class="alert-link ml-2" href="{{ route('smtp_settings.index') }}">{{ translate('Configure Now') }}</a>
         </div>
     @endif
 
     @can('show_dashboard')
-
         <div class="row">
             <div class="col-xl-3 col-md-6">
                 <div class="shadow-xl rounded-lg pt-5 px-4 mb-5 d-flex justify-content-between align-items-end"

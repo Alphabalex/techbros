@@ -15,6 +15,11 @@ use App\Models\Attribute;
 use App\Models\AttributeValue;
 use App\Models\Category;
 use App\Models\ProductTax;
+use App\Models\ShopBrand;
+use App\Models\User;
+use App\Utility\CategoryUtility;
+use CoreComponentRepository;
+use Artisan;
 
 class ProductController extends Controller
 {
@@ -39,7 +44,7 @@ class ProductController extends Controller
         $col_name = null;
         $query = null;
         $sort_search = null;
-        $products = Product::orderBy('created_at', 'desc');
+        $products = Product::orderBy('created_at', 'desc')->where('shop_id', auth()->user()->shop_id);
         if ($request->search != null) {
             $products = $products->where('name', 'like', '%' . $request->search . '%');
             $sort_search = $request->search;
@@ -79,6 +84,8 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        
+        CoreComponentRepository::instantiateShopRepository();
         if ($request->has('is_variant') && !$request->has('variations')) {
             flash(translate('Invalid product variations'))->error();
             return redirect()->back();
@@ -86,6 +93,7 @@ class ProductController extends Controller
 
         $product                    = new Product;
         $product->name              = $request->name;
+        $product->shop_id           = auth()->user()->shop_id;
         $product->brand_id          = $request->brand_id;
         $product->unit              = $request->unit;
         $product->min_qty           = $request->min_qty;
@@ -154,11 +162,27 @@ class ProductController extends Controller
         // category
         $product->categories()->sync($request->category_ids);
 
+        // shop category ids
+        $shop_category_ids = [];
+        foreach ($request->category_ids ?? [] as $id) {
+            $shop_category_ids[] = CategoryUtility::get_grand_parent_id($id);
+        }
+        $shop_category_ids =  array_merge(array_filter($shop_category_ids), $product->shop->shop_categories->pluck('category_id')->toArray());
+        $product->shop->categories()->sync($shop_category_ids);
+
+        // shop brand
+        if ($request->brand_id) {
+            ShopBrand::updateOrCreate([
+                'shop_id' => $product->shop_id,
+                'brand_id' => $request->brand_id,
+            ]);
+        }
+
 
         //taxes
         $tax_data = array();
         $tax_ids = array();
-        if($request->has('taxes')){
+        if ($request->has('taxes')) {
             foreach ($request->taxes as $key => $tax) {
                 array_push($tax_data, [
                     'tax' => $tax,
@@ -170,7 +194,7 @@ class ProductController extends Controller
         $taxes = array_combine($tax_ids, $tax_data);
 
         $product->product_taxes()->sync($taxes);
-        
+
 
         //product variation
         $product->is_variant        = ($request->has('is_variant') && $request->has('variations')) ? 1 : 0;
@@ -254,6 +278,10 @@ class ProductController extends Controller
     public function edit(Request $request, $id)
     {
         $product = Product::findOrFail($id);
+        if ($product->shop_id != auth()->user()->shop_id) {
+            abort(403);
+        }
+
         $lang = $request->lang;
         $categories = Category::where('level', 0)->get();
         $all_attributes = Attribute::get();
@@ -284,6 +312,10 @@ class ProductController extends Controller
         $product                    = Product::findOrFail($id);
         $oldProduct                 = clone $product;
 
+        if ($product->shop_id != auth()->user()->shop_id) {
+            abort(403);
+        }
+
         if ($request->lang == env("DEFAULT_LANGUAGE")) {
             $product->name          = $request->name;
             $product->unit          = $request->unit;
@@ -291,6 +323,7 @@ class ProductController extends Controller
         }
 
         $product->brand_id          = $request->brand_id;
+        CoreComponentRepository::instantiateShopRepository();
         $product->min_qty           = $request->min_qty;
         $product->max_qty           = $request->max_qty;
         $product->photos            = $request->photos;
@@ -356,10 +389,26 @@ class ProductController extends Controller
         // category
         $product->categories()->sync($request->category_ids);
 
+        // shop category ids
+        $shop_category_ids = [];
+        foreach ($request->category_ids ?? [] as $id) {
+            $shop_category_ids[] = CategoryUtility::get_grand_parent_id($id);
+        }
+        $shop_category_ids =  array_merge(array_filter($shop_category_ids), $product->shop->shop_categories->pluck('category_id')->toArray());
+        $product->shop->categories()->sync($shop_category_ids);
+
+        // shop brand
+        if ($request->brand_id) {
+            ShopBrand::updateOrCreate([
+                'shop_id' => $product->shop_id,
+                'brand_id' => $request->brand_id,
+            ]);
+        }
+
         // taxes
         $tax_data = array();
         $tax_ids = array();
-        if($request->has('taxes')){
+        if ($request->has('taxes')) {
             foreach ($request->taxes as $key => $tax) {
                 array_push($tax_data, [
                     'tax' => $tax,
@@ -569,6 +618,7 @@ class ProductController extends Controller
                 $product_translation->name          = $translation->name;
                 $product_translation->unit          = $translation->unit;
                 $product_translation->description   = $translation->description;
+                $product_translation->lang          = $translation->lang;
                 $product_translation->save();
             }
 
@@ -615,6 +665,9 @@ class ProductController extends Controller
         $product = Product::findOrFail($request->id);
         $product->published = $request->status;
         $product->save();
+
+        cache_clear();
+
         return 1;
     }
 

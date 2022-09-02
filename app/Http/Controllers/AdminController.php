@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Order;
+use App\Models\Setting;
+use Artisan;
 use Cache;
 use Illuminate\Http\Request;
+use Str;
 
 class AdminController extends Controller
 {
@@ -41,5 +44,15 @@ class AdminController extends Controller
         });
 
         return view('backend.dashboard', compact('root_categories', 'cached_graph_data'));
+    }
+
+    function clearCache(Request $request)
+    {   
+        cache_clear();
+        Setting::where('type', 'force_cache_clear_version')->update([
+            "value" => strtolower(Str::random(30))
+        ]);
+        flash(translate('Cache cleared successfully'))->success();
+        return back();
     }
 }

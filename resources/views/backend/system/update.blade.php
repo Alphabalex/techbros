@@ -15,9 +15,7 @@
 								{{ translate('Make sure your server has matched with all requirements.') }}
 								<a href="{{route('server_status')}}">{{ translate('Check Here') }}</a>
 							</li>
-							<li class="">{{ translate('Download latest version from codecanyon.') }}</li>
-							<li class="">{{ translate('Extract downloaded zip. You will find updates.zip file in those extraced files.') }}</li>
-							<li class="">{{ translate('Upload that zip file here and click update now.') }}</li>
+							<li class="">{{ translate('Upload updates.zip file here and click update now.') }}</li>
 							<li class="">{{ translate('If you are using any addon make sure to update those addons after updating.') }}</li>
 							<li class="">{{ translate('Please turn off maintenance mode before updating.') }}</li>
 						</ul>

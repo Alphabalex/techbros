@@ -200,6 +200,54 @@
                     <input type="text" placeholder="" name="dashboard_page_bottom_banner_link" value="{{ get_setting('dashboard_page_bottom_banner_link') }}" class="form-control">
                 </div>
             </div>
+            @if (addon_is_activated('multi_vendor'))
+                <div class="form-group row gutters-10">
+                    <div class="col-lg-3">
+                        <label class="from-label d-block">{{translate('All shops page banner & link')}}</label>
+                        <small>{{ translate('Recommended size').' 315x425' }}</small>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <div class="input-group" data-toggle="aizuploader" data-type="image">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse')}}</div>
+                                </div>
+                                <div class="form-control file-amount">{{ translate('Choose File') }}</div>
+                                <input type="hidden" name="types[]" value="all_shops_page_banner">
+                                <input type="hidden" name="all_shops_page_banner" class="selected-files" value="{{ get_setting('all_shops_page_banner') }}">
+                            </div>
+                            <div class="file-preview box sm"></div>
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                        <input type="hidden" name="types[]" value="all_shops_page_banner_link">
+                        <input type="text" placeholder="" name="all_shops_page_banner_link" value="{{ get_setting('all_shops_page_banner_link') }}" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group row gutters-10">
+                    <div class="col-lg-3">
+                        <label class="from-label d-block">{{translate('Shop registration page banner & link')}}</label>
+                        <small>{{ translate('Recommended size').' 315x425' }}</small>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <div class="input-group" data-toggle="aizuploader" data-type="image">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse')}}</div>
+                                </div>
+                                <div class="form-control file-amount">{{ translate('Choose File') }}</div>
+                                <input type="hidden" name="types[]" value="shop_registration_page_banner">
+                                <input type="hidden" name="shop_registration_page_banner" class="selected-files" value="{{ get_setting('shop_registration_page_banner') }}">
+                            </div>
+                            <div class="file-preview box sm"></div>
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                        <input type="hidden" name="types[]" value="shop_registration_page_banner_link">
+                        <input type="text" placeholder="" name="shop_registration_page_banner_link" value="{{ get_setting('shop_registration_page_banner_link') }}" class="form-control">
+                    </div>
+                </div>
+            @endif
             <div class="text-right">
                 <button type="submit" class="btn btn-primary">{{ translate('Update') }}</button>
             </div>

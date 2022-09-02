@@ -11,6 +11,7 @@ class CategoryCollection extends ResourceCollection
         return [
             'data' => $this->collection->map(function($data) {
                 return [
+                    'id' => $data->id,
                     'name' => $data->getTranslation('name'),
                     'banner' => api_asset($data->banner),
                     'icon' => api_asset($data->icon),

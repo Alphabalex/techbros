@@ -1,7 +1,9 @@
 @extends('backend.layouts.app')
 
 @section('content')
-
+    @php
+    CoreComponentRepository::instantiateShopRepository();
+    @endphp
     <div class="card">
         <form class="" id="sort_orders" action="" method="GET">
             <div class="card-header row gutters-5">
@@ -31,8 +33,8 @@
                 </div>
                 <div class="col-xl-2 col-md-3">
                     <div class="input-group">
-                        <input type="text" class="form-control" id="search" name="search" @isset($sort_search)
-                            value="{{ $sort_search }}" @endisset
+                        <input type="text" class="form-control" id="search" name="search"
+                            @isset($sort_search) value="{{ $sort_search }}" @endisset
                             placeholder="{{ translate('Type Order code & hit Enter') }}">
                     </div>
                 </div>
@@ -60,7 +62,10 @@
                                 {{ $key + 1 + ($orders->currentPage() - 1) * $orders->perPage() }}
                             </td>
                             <td>
-                                {{ $order->code }}
+                                @if (addon_is_activated('multi_vendor'))
+                                    <div>{{ translate('Package') }} {{ $order->code }} {{ translate('of') }}</div>
+                                @endif
+                                <div class="fw-600">{{ $order->combined_order->code ?? '' }}</div>
                             </td>
                             <td>
                                 {{ count($order->orderDetails) }}
@@ -124,7 +129,6 @@
             </div>
         </div>
     </div>
-
 @endsection
 
 @section('modal')

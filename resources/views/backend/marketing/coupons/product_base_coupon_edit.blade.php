@@ -29,7 +29,7 @@
             <div class="col-lg-9">
                 <select name="product_ids[]" class="form-control product_id aiz-selectpicker" data-live-search="true"
                     data-selected-text-format="count" required multiple>
-                    @foreach (\App\Models\Product::where('published', 1)->get() as $key => $product)
+                    @foreach (\App\Models\Product::where('shop_id', auth()->user()->shop_id)->where('published', 1)->get() as $key => $product)
                         <option value="{{ $product->id }}" @foreach (json_decode($coupon->details) as $key => $details)
                             @if ($details->product_id == $product->id)
                                 selected
@@ -43,14 +43,14 @@
     </div>
 </div>
 @php
-$start_date = date('m/d/Y', $coupon->start_date);
-$end_date = date('m/d/Y', $coupon->end_date);
+$start_date = date('Y-m-d', $coupon->start_date);
+$end_date = date('Y-m-d', $coupon->end_date);
 @endphp
 <div class="form-group row">
     <label class="col-sm-3 control-label" for="start_date">{{ translate('Date') }}</label>
     <div class="col-sm-9">
         <input type="text" class="form-control aiz-date-range" value="{{ $start_date . ' - ' . $end_date }}"
-            name="date_range" placeholder="Select Date">
+            name="date_range" placeholder="Select Date" data-separator=" - ">
     </div>
 </div>
 

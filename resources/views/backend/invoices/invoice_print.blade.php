@@ -115,7 +115,7 @@
                                         <td class="">
                                             <span class=" ">{{ translate('Order Code') }}:</span>
                                             <span class="bold"
-                                                style="color: #ED2939">{{ $order->code }}</span>
+                                                style="color: #ED2939">{{ $order->combined_order->code }}</span>
                                         </td>
                                     </tr>
                                     <tr>
@@ -227,8 +227,8 @@
                                         @foreach ($orderDetail->variation->combinations as $combination)
                                             <span style="margin-right:10px">
                                                 <span
-                                                    class="">{{ $combination->attribute->getTranslation('name') }}</span>:
-                                                <span>{{ $combination->attribute_value->getTranslation('name') }}</span>
+                                                    class="">{{ optional($combination->attribute)->getTranslation('name') }}</span>:
+                                                <span>{{ optional($combination->attribute_value)->getTranslation('name') }}</span>
                                             </span>
                                         @endforeach
                                     @endif

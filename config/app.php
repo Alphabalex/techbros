@@ -172,6 +172,9 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
+        /*
+         * Package Service Providers...
+         */
         Laracon21\Colorcodeconverter\ColorcodeconverterServiceProvider::class,
         Laracon21\Timezones\TimezonesServiceProvider::class,
         Laracasts\Flash\FlashServiceProvider::class,
@@ -184,9 +187,9 @@ return [
         Unicodeveloper\Paystack\PaystackServiceProvider::class,
         KingFlamez\Rave\RaveServiceProvider::class,
         /*
-         * Package Service Providers...
+         * Plugin Service Providers...
          */
-
+        App\LaravelAddons\AddonServiceProvider::class,
         /*
          * Application Service Providers...
          */

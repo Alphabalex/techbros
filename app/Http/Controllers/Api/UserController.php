@@ -39,7 +39,8 @@ class UserController extends Controller
 
         return response()->json([
             'success' => true,
-            'user' => new UserCollection($user)
+            'user' => new UserCollection($user),
+            'followed_shops' => $user->followed_shops->pluck('id')->toArray()
         ]);
     }
 

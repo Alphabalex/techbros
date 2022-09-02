@@ -3,22 +3,46 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\User;
 
 class Order extends Model
 {
-    use SoftDeletes;
 
-    protected $fillable = ['user_id', 'code', 'shipping_address', 'billing_address', 'shipping_cost', 'delivery_type', 'payment_type', 'payment_status', 'grand_total', 'coupon_code', 'coupon_discount'];
+    protected $guarded = [];
 
     public function orderDetails()
     {
-        return $this->hasMany(OrderDetail::class)->withTrashed();
+        return $this->hasMany(OrderDetail::class);
     }
 
     public function user()
     {
-        return $this->belongsTo(User::class)->withTrashed();
+        return $this->belongsTo(User::class);
     }
+
+    public function shop()
+    {
+        return $this->belongsTo(Shop::class);
+    }
+
+    public function combined_order()
+    {
+        return $this->belongsTo(CombinedOrder::class);
+    }
+
+    public function commission_histories()
+    {
+        return $this->hasMany(CommissionHistory::class);
+    }
+
+    public function order_udpates()
+    {
+        return $this->hasMany(OrderUpdate::class)->latest();
+    }
+
+    public function refundRequests()
+    {
+        return $this->hasMany(RefundRequest::class);
+    }
+
 }

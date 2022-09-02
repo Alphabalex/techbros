@@ -21,9 +21,7 @@
                     <div class="form-group row">
                         <label class="col-md-3 col-form-label">{{ translate('Cities') }}</label>
                         <div class="col-md-9">
-                            <select class="select2 form-control aiz-selectpicker" name="cities[]"
-                                data-title="{{ translate('Select cities') }}" data-live-search="true"
-                                data-actions-box="true" multiple>
+                            <select class="select2 form-control aiz-selectpicker" name="cities[]" data-title="{{ translate('Select cities') }}" data-live-search="true" data-max-options="100" data-selected-text-format="count" multiple required>
                                 @foreach ($cities as $city)
                                     <option value="{{ $city->id }}">{{ $city->name }}</option>
                                 @endforeach
@@ -35,8 +33,8 @@
                             {{ translate('Standard Delivery Cost') }}
                         </label>
                         <div class="col-md-9">
-                            <input type="number" step="0.01" name="standard_delivery_cost" class="form-control"
-                                id="standard_delivery_cost" placeholder="{{ translate('Standard Delivery Cost') }}">
+                            <input type="number" step="0.01" value="0" name="standard_delivery_cost" class="form-control"
+                                id="standard_delivery_cost" placeholder="{{ translate('Standard Delivery Cost') }}" required>
                         </div>
                     </div>
 
@@ -45,8 +43,8 @@
                             {{ translate('Express Delivery Cost') }}
                         </label>
                         <div class="col-md-9">
-                            <input type="number" step="0.01" name="express_delivery_cost" class="form-control"
-                                id="express_delivery_cost" placeholder="{{ translate('Express Delivery Cost') }}">
+                            <input type="number" step="0.01" value="0" name="express_delivery_cost" class="form-control"
+                                id="express_delivery_cost" placeholder="{{ translate('Express Delivery Cost') }}" required>
                         </div>
                     </div>
                     <div class="form-group mb-0 text-right">

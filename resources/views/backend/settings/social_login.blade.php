@@ -117,19 +117,19 @@
                     <div class="form-group row">
                         <input type="hidden" name="types[]" value="TWITTER_CLIENT_ID">
                         <div class="col-lg-3">
-                            <label class="col-from-label">{{translate('Client ID')}}</label>
+                            <label class="col-from-label">{{translate('App Key')}}</label>
                         </div>
                         <div class="col-md-7">
-                            <input type="text" class="form-control" name="TWITTER_CLIENT_ID" value="{{ env('TWITTER_CLIENT_ID') }}" placeholder="{{ translate('Twitter Client ID') }}" required>
+                            <input type="text" class="form-control" name="TWITTER_CLIENT_ID" value="{{ env('TWITTER_CLIENT_ID') }}" placeholder="{{ translate('Twitter App Key') }}" required>
                         </div>
                     </div>
                     <div class="form-group row">
                         <input type="hidden" name="types[]" value="TWITTER_CLIENT_SECRET">
                         <div class="col-lg-3">
-                            <label class="col-from-label">{{translate('Client Secret')}}</label>
+                            <label class="col-from-label">{{translate('App Secret')}}</label>
                         </div>
                         <div class="col-md-7">
-                            <input type="text" class="form-control" name="TWITTER_CLIENT_SECRET" value="{{ env('TWITTER_CLIENT_SECRET') }}" placeholder="{{ translate('Twitter Client Secret') }}" required>
+                            <input type="text" class="form-control" name="TWITTER_CLIENT_SECRET" value="{{ env('TWITTER_CLIENT_SECRET') }}" placeholder="{{ translate('Twitter App Secret') }}" required>
                         </div>
                     </div>
                     <div class="form-group mb-0 text-right">

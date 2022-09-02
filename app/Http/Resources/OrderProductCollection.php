@@ -19,6 +19,7 @@ class OrderProductCollection extends ResourceCollection
                     'tax' => $data->tax,
                     'total' => $data->total,
                     'quantity' => $data->quantity,
+                    'order_detail_id' => $data->id,
                 ];
             })
         ];

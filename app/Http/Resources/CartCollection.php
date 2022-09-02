@@ -13,6 +13,7 @@ class CartCollection extends ResourceCollection
                 return [
                     'cart_id' => (integer) $data->id,
                     'product_id' => (integer) $data->product_id,
+                    'shop_id' => (integer) $data->product->shop_id,
                     'variation_id' => (integer) $data->product_variation_id,
                     'name' => $data->product->name,
                     'combinations' => filter_variation_combinations($data->variation->combinations),

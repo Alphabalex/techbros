@@ -1,5 +1,17 @@
 <?php
 
+use App\Http\Controllers\Payment\FlutterwavePaymentController;
+use App\Http\Controllers\Payment\PaypalPaymentController;
+use App\Http\Controllers\Payment\PaystackPaymentController;
+use App\Http\Controllers\Payment\PaytmPaymentController;
+use App\Http\Controllers\Payment\SSLCommerzPaymentController;
+use App\Http\Controllers\Payment\StripePaymentController;
+use App\Http\Controllers\Payment\PaymentController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\AddressController;
+use App\Http\Controllers\Payment\RazorpayPaymentController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -12,48 +24,62 @@
 */
 
 
-Route::get('/offline', 'HomeController@index')->name('offline');
+// Route::get('/offline', 'HomeController@index')->name('offline');
 
 Route::group(['prefix' => 'payment'], function(){
+
+    Route::any('/{gateway}/pay', [PaymentController::class,'payment_initialize']);
+
     // stripe
-    Route::any('/stripe/pay', 'Api\StripePaymentController@stripe');
-    Route::any('/stripe/create-session', 'Api\StripePaymentController@create_checkout_session')->name('stripe.get_token');
-    Route::get('/stripe/success', 'Api\StripePaymentController@success')->name('stripe.success');
-    Route::get('/stripe/cancel', 'Api\StripePaymentController@cancel')->name('stripe.cancel');
+    Route::any('/stripe/create-session', [StripePaymentController::class,'create_checkout_session'])->name('stripe.get_token');
+    Route::get('/stripe/success', [StripePaymentController::class,'success'])->name('stripe.success');
+    Route::get('/stripe/cancel', [StripePaymentController::class,'cancel'])->name('stripe.cancel');
 
     // paypal
-    Route::any('/paypal/pay', 'Api\PaypalPaymentController@paypal');
-    Route::get('/paypal/success', 'Api\PaypalPaymentController@success')->name('paypal.success');
-    Route::get('/paypal/cancel', 'Api\PaypalPaymentController@cancel')->name('paypal.cancel');
+    Route::get('/paypal/success', [PaypalPaymentController::class,'success'])->name('paypal.success');
+    Route::get('/paypal/cancel', [PaypalPaymentController::class,'cancel'])->name('paypal.cancel');
 
     //sslcommerz
-    Route::any('/sslcommerz/pay', 'Api\SSLCommerzPaymentController@index')->name('sslcommerz.pay');
-    Route::any('/sslcommerz/success', 'Api\SSLCommerzPaymentController@success')->name('sslcommerz.success');
-    Route::any('/sslcommerz/fail', 'Api\SSLCommerzPaymentController@fail')->name('sslcommerz.fail');
-    Route::any('/sslcommerz/cancel', 'Api\SSLCommerzPaymentController@cancel')->name('sslcommerz.cancel');
+    Route::any('/sslcommerz/success', [SSLCommerzPaymentController::class,'success'])->name('sslcommerz.success');
+    Route::any('/sslcommerz/fail', [SSLCommerzPaymentController::class,'fail'])->name('sslcommerz.fail');
+    Route::any('/sslcommerz/cancel', [SSLCommerzPaymentController::class,'cancel'])->name('sslcommerz.cancel');
 
     //paystack
-    Route::any('/paystack/pay', 'Api\PaystackPaymentController@index')->name('paystack.pay');
-    Route::any('/paystack/callback', 'Api\PaystackPaymentController@return')->name('paystack.return');
+    Route::any('/paystack/callback', [PaystackPaymentController::class,'return'])->name('paystack.return');
 
     //paytm
-    Route::any('/paytm/pay', 'Api\PaytmPaymentController@index');
-    Route::any('/paytm/callback', 'Api\PaytmPaymentController@callback')->name('paytm.callback');
+    Route::any('/paytm/callback', [PaytmPaymentController::class,'callback'])->name('paytm.callback');
 
     //flutterwave
-    Route::any('/flutterwave/pay', 'Api\FlutterwavePaymentController@pay')->name('flutterwave.pay');
-    Route::any('/flutterwave/callback', 'Api\FlutterwavePaymentController@callback')->name('flutterwave.callback');
+    Route::any('/flutterwave/callback', [FlutterwavePaymentController::class,'callback'])->name('flutterwave.callback');
+
+    // razorpay
+    Route::post('razorpay/payment', [RazorpayPaymentController::class,'payment'])->name('razorpay.payment');
 });
 
-Route::any('/social-login/redirect/{provider}', 'Auth\LoginController@redirectToProvider')->name('social.login');
-Route::get('/social-login/{provider}/callback', 'Auth\LoginController@handleProviderCallback')->name('social.callback');
+Route::any('/social-login/redirect/{provider}', [LoginController::class,'redirectToProvider'])->name('social.login');
+Route::get('/social-login/{provider}/callback', [LoginController::class,'handleProviderCallback'])->name('social.callback');
 
 
-Route::get('/product/{slug}', 'HomeController@index')->name('product');
-Route::get('/category/{slug}', 'HomeController@index')->name('products.category');
+Route::get('/product/{slug}', [HomeController::class,'index'])->name('product');
+Route::get('/category/{slug}', [HomeController::class,'index'])->name('products.category');
 
-Route::get('/', 'HomeController@index')->name('home');
-Route::get('{slug}', 'HomeController@index')->where('slug','.*');
+Route::get('/blog-details/{slug}', [HomeController::class,'index'])->name('blog.details');
+
+
+
+//Address
+Route::resource('addresses', AddressController::class);
+Route::controller(AddressController::class)->group(function () {
+    Route::post('/get-states', 'getStates')->name('get-state');
+    Route::post('/get-cities', 'getCities')->name('get-city');
+    Route::post('/addresses/update/{id}', 'update')->name('addresses.update');
+    Route::get('/addresses/destroy/{id}', 'destroy')->name('addresses.destroy');
+    Route::get('/addresses/set_default/{id}', 'set_default')->name('addresses.set_default');
+});
+
+Route::get('/', [HomeController::class,'index'])->name('home');
+Route::get('{slug}', [HomeController::class,'index'])->where('slug','.*');
 
 
 

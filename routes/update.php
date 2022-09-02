@@ -1,4 +1,7 @@
 <?php
+
+use App\Http\Controllers\UpdateController;
+
 /*
 |--------------------------------------------------------------------------
 | Update Routes
@@ -9,6 +12,6 @@
 |
 |
 */
-Route::get('/', 'UpdateController@step0');
-Route::get('/step1', 'UpdateController@step1')->name('step1');
-Route::get('/step2', 'UpdateController@step2')->name('step2');
+
+
+Route::get('/', [UpdateController::class,'step0']);

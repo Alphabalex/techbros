@@ -43,17 +43,41 @@
 							</div>
 						</div>
 						<div class="form-group row">
-							<label class="col-md-3 col-from-label">{{ translate('Play Store Link') }}</label>
+							<label class="col-md-3 col-from-label">{{translate('Show Language Switcher?')}}</label>
 							<div class="col-md-8">
+								<label class="aiz-switch aiz-switch-success mb-0">
+									<input type="hidden" name="types[]" value="show_language_switcher">
+									<input type="checkbox" name="show_language_switcher" @if( get_setting('show_language_switcher') == 'on') checked @endif>
+									<span></span>
+								</label>
+							</div>
+						</div>
+						<div class="form-group row">
+							<label class="col-md-3 col-from-label">{{ translate('Play Store Link') }}</label>
+							<div class="col-md-7">
 								<input type="hidden" name="types[]" value="topbar_play_store_link">
 								<input type="text" class="form-control" placeholder="" name="topbar_play_store_link" value="{{ get_setting('topbar_play_store_link') }}">
+							</div>
+							<div class="col-md-1 mt-2">
+								<label class="aiz-switch aiz-switch-success mb-0">
+									<input type="hidden" name="types[]" value="show_topbar_play_store_link">
+									<input type="checkbox" name="show_topbar_play_store_link" @if( get_setting('show_topbar_play_store_link') == 'on') checked @endif>
+									<span></span>
+								</label>
 							</div>
 						</div>
 						<div class="form-group row">
 							<label class="col-md-3 col-from-label">{{ translate('App Store Link') }}</label>
-							<div class="col-md-8">
+							<div class="col-md-7">
 								<input type="hidden" name="types[]" value="topbar_app_store_link">
 								<input type="text" class="form-control" placeholder="" name="topbar_app_store_link" value="{{ get_setting('topbar_app_store_link') }}">
+							</div>
+							<div class="col-md-1 mt-2">
+								<label class="aiz-switch aiz-switch-success mb-0">
+									<input type="hidden" name="types[]" value="show_topbar_app_store_link">
+									<input type="checkbox" name="show_topbar_app_store_link" @if( get_setting('show_topbar_app_store_link') == 'on') checked @endif>
+									<span></span>
+								</label>
 							</div>
 						</div>
 						<div class="form-group row">

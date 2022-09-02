@@ -10,7 +10,7 @@
     <div class="card">
         <div class="card-body p-0">
 			<ul class="nav nav-tabs nav-fill border-light">
-				@foreach (\App\Models\Language::all() as $key => $language)
+				@foreach (\App\Models\Language::where('status',1)->get() as $key => $language)
 				<li class="nav-item">
 					<a class="nav-link text-reset @if ($language->code == $lang) active @else bg-soft-dark border-light border-left-0 @endif py-3" href="{{ route('attribute_values.edit', ['id'=>$attribute_value->id, 'lang'=> $language->code] ) }}">
 						<img src="{{ static_asset('assets/img/flags/'.$language->flag.'.png') }}" height="11" class="mr-1">

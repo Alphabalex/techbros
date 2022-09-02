@@ -52,8 +52,49 @@ class AizUploadController extends Controller
         return view('backend.uploaded_files.index', compact('all_uploads', 'search', 'sort_by'));
     }
 
+    public function seller_index(Request $request){
+
+
+        $all_uploads = Upload::where('user_id',Auth::user()->id);
+        $search = null;
+        $sort_by = null;
+
+        if ($request->search != null) {
+            $search = $request->search;
+            $all_uploads->where('file_original_name', 'like', '%'.$request->search.'%');
+        }
+
+        $sort_by = $request->sort;
+        switch ($request->sort) {
+            case 'newest':
+                $all_uploads->orderBy('created_at', 'desc');
+                break;
+            case 'oldest':
+                $all_uploads->orderBy('created_at', 'asc');
+                break;
+            case 'smallest':
+                $all_uploads->orderBy('file_size', 'asc');
+                break;
+            case 'largest':
+                $all_uploads->orderBy('file_size', 'desc');
+                break;
+            default:
+                $all_uploads->orderBy('created_at', 'desc');
+                break;
+        }
+
+        $all_uploads = $all_uploads->paginate(60)->appends(request()->query());
+
+        return view('addon:multivendor::seller.uploaded_files.index', compact('all_uploads', 'search', 'sort_by'));
+    }
+
     public function create(){
-        return view('backend.uploaded_files.create');
+        if(Auth::user()->user_type == 'admin' || Auth::user()->user_type == 'staff'){
+            return view('backend.uploaded_files.create');
+        }
+        elseif(Auth::user()->user_type == 'seller'){
+            return view('addon:multivendor::seller.uploaded_files.create');
+        }
     }
 
     public function show_uploader(Request $request){

@@ -10,7 +10,7 @@
         <input type="hidden" name="id" value="{{ $product->id }}">
         <input type="hidden" name="lang" value="{{ $lang }}">
         <ul class="nav nav-tabs nav-fill border-light">
-            @foreach (\App\Models\Language::all() as $key => $language)
+            @foreach (\App\Models\Language::where('status',1)->get() as $key => $language)
                 <li class="nav-item">
                     <a class="nav-link text-reset @if ($language->code == $lang) active @else bg-soft-dark border-light border-left-0 @endif py-3"
                         href="{{ route('product.edit', ['id' => $product->id, 'lang' => $language->code]) }}">
@@ -52,7 +52,7 @@
                             <label class="col-md-3 col-from-label">{{ translate('Minimum Purchase Qty') }} <span
                                     class="text-danger">*</span></label>
                             <div class="col-md-8">
-                                <input type="number" class="form-control" name="min_qty" value="1" min="1"
+                                <input type="number" class="form-control" name="min_qty" min="1"
                                     value="{{ $product->min_qty }}" required>
                                 <small
                                     class="text-muted">{{ translate('Customer need to purchase this minimum quantity for this product. Minimum should be 1.') }}</small>

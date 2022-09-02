@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use App\Http\Middleware\IsAdmin;
+use App\Http\Middleware\IsSeller;
 use App\Http\Middleware\IsUser;
 use App\Http\Middleware\IsUnbanned;
 use App\Http\Middleware\ApiLocalization;
@@ -44,7 +45,7 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            'throttle:200,1',
+            'throttle:500,1',
             'bindings',
             'ApiLocalization'
         ],
@@ -59,6 +60,7 @@ class Kernel extends HttpKernel
      */
     protected $routeMiddleware = [
         'admin' => IsAdmin::class,
+        'seller' => IsSeller::class,
         'user' => IsUser::class,
         'unbanned' => IsUnbanned::class,
         'ApiLocalization' => ApiLocalization::class,

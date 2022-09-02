@@ -45,8 +45,9 @@
                                 @endif
                                 {{ translate('Off') }}
                                 <div class="opacity-60 fs-12">
-                                    {{ \Carbon\Carbon::parse($product->discount_start_date)->toDateTimeString() }} -
-                                    {{ \Carbon\Carbon::parse($product->discount_end_date)->toDateTimeString() }}</div>
+                                    {{ date('Y/m/d H:i:s', $product->discount_start_date) }} -
+                                    {{ date('Y/m/d H:i:s', $product->discount_end_date) }}
+                                </div>
                             </div>
                         @endif
                     </div>

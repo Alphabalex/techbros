@@ -65,6 +65,7 @@ View other products
 Add to Cart
 View All
 A verification code has been sent to your email.
+A verification code has been sent to your phone number.
 Payment failed!!
 Your order has been placed. But failed to complete the payment. Please try again or contact our support.
 Try again
@@ -92,6 +93,7 @@ Email address
 or
 Signup
 Don't have an account
+Already have an account
 Search for products, brands and more...
 No
 Yes
@@ -141,11 +143,14 @@ FORGOT
 Password
 Old Password
 Enter your email address to recover your password
+Enter your phone number to recover your password
+Enter your email address or phone number to recover your password
 Send Password Reset Code
 Back to
 RESET
 Code
 Enter your email address, Code & New Password
+Enter your phone number, Code & New Password
 Confirm Password
 Reset Password
 WELCOME TO
@@ -158,6 +163,7 @@ Join With
 Don't have an account
 VERIFY
 Enter your email address, verification code
+Enter your phone number, verification code
 Verify
 Resend Code
 THE PAGE YOU ARE LOOKING WAS NOT
@@ -241,6 +247,7 @@ Write a review
 View details
 Download invoice
 Cancel order
+Cancelled
 This product is not available.
 Rating
 Comment
@@ -258,3 +265,110 @@ Your shopping bag is empty. Start shopping.
 Coupons
 Copy Code
 Code copied to clipboard
+Pay with wallet
+Become a Seller with
+All shops
+Visit Store
+Follow
+Unfollow
+Shop since
+Total Products
+Ratings
+All Shops
+Featured Products
+New Arrival
+Best Rated
+Best Selling
+Store
+View All Products of This Shop
+All coupons
+Shop
+Followed shops
+No followed shop found
+QTY
+shop
+Sort by brand
+Sort by category
+No data available
+Be a Seller
+Seller Zone
+Login to Seller Panel
+Already a Seller?
+Register your shop
+Personal information
+Shop information
+Register Shop
+Info
+Refund Product quantity can not be greater than the ordered product quantity
+Refund information
+Refund amount
+Refund reasons
+Refund note
+Attachments
+Request Refund
+shops
+Congratulations! You reached the minimum order amount.
+You need to reach
+to place order from this shop.
+to place order from
+Loading please wait
+Status
+Create new refund request
+Refund requests
+Pending
+Accepted
+Rejected
+Choose One
+Select images
+Please select a product
+Actions
+Wallet history
+Added
+Deducted
+Actions
+We will get back to very soon
+Tracking information
+Courier name
+Tracking number
+Tracking url
+Track
+use phone instead
+Conversations
+No Conversation Found
+My Conversations
+Message Seller
+Any query about this product
+Product Name
+Question
+Send
+Title
+Message has been sent to seller
+Conversation with
+Ask about this product
+Product Query
+Product Querries
+My Querries
+New
+Query With
+Contact Admin
+Account details
+Routing Number
+Account Number
+Account Name
+Bank Name
+Bank Info
+Payment Name
+Payment Type
+Transaction ID
+Please input transaction id
+Add Receipt
+Wallet Recharge Successful
+Please Wait For Approval
+Receipt
+Payment Details
+Paid Via
+All Blogs
+Read full blog
+Social Media
+Recent Blogs
+No Blog Found

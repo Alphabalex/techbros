@@ -1,7 +1,6 @@
 @extends('backend.layouts.app')
 
 @section('content')
-
     <div class="col-lg-8 mx-auto">
         <div class="card">
             <div class="card-header">
@@ -60,6 +59,9 @@
                             </div>
                         </div>
                     </div>
+                    @php
+                        CoreComponentRepository::instantiateShopRepository();
+                    @endphp
                     {{-- <div class="form-group row">
                     <label class="col-md-3 col-form-label" for="signinSrEmail">{{translate('Icon')}} <small>({{ translate('32x32') }})</small></label>
                     <div class="col-md-9">
@@ -122,5 +124,4 @@
             </div>
         </div>
     </div>
-
 @endsection

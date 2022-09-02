@@ -2,7 +2,7 @@
 
 namespace App\Notifications;
 
-use App\Models\Order;
+use App\Models\CombinedOrder;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
@@ -12,11 +12,11 @@ class OrderPlacedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
     
-    protected $order;
+    protected $combined_order;
 
-    public function __construct(Order $order)
+    public function __construct(CombinedOrder $combined_order)
     {
-        $this->order = $order;
+        $this->combined_order = $combined_order;
     }
 
     public function via($notifiable)
@@ -26,14 +26,11 @@ class OrderPlacedNotification extends Notification implements ShouldQueue
 
     public function toMail($notifiable)
     {
-        $notifiable->verification_code = rand(100000,999999);
-        $notifiable->save();
-
-        $array['subject'] = translate('Your order has been placed') . ' - ' . $this->order->code;
-        $array['order'] = $this->order;
+        $array['subject'] = translate('Your order has been placed') . ' - ' . $this->combined_order->code;
+        $array['order'] = $this->combined_order;
 
         return (new MailMessage)
-            ->view('emails.invoice', ['array' => $array, 'order' => $this->order])
+            ->view('emails.invoice', ['array' => $array, 'combined_order' => $this->combined_order])
             ->from(env('MAIL_FROM_ADDRESS'))
             ->subject(translate('Order Placed').' - '.env('APP_NAME'));
     }

@@ -27,16 +27,8 @@ class OrderSingleCollection extends JsonResource
             ],
             'shipping_address' => json_decode($this->shipping_address),
             'billing_address' => json_decode($this->billing_address),
-            'payment_type' => $this->payment_type,
-            'delivery_type' => $this->delivery_type,
-            'delivery_status' => $this->delivery_status,
-            'payment_status' => $this->payment_status,
             'grand_total' => (double) $this->grand_total,
-            'coupon_discount' => (double) $this->coupon_discount,
-            'shipping_cost' => (double) $this->shipping_cost,
-            'subtotal' => (double) $this->orderDetails->sum('total') - $this->calculateTotalTax($this->orderDetails),
-            'tax' => (double) $this->calculateTotalTax($this->orderDetails),
-            'products' => new OrderProductCollection($this->orderDetails),
+            'orders' => OrderResource::collection($this->orders),
             'date' => $this->created_at->toFormattedDateString()
         ];
     }
@@ -47,13 +39,5 @@ class OrderSingleCollection extends JsonResource
             'success' => true,
             'status' => 200
         ];
-    }
-
-    protected function calculateTotalTax($orderDetails){
-        $tax = 0;
-        foreach($orderDetails as $item){
-            $tax += $item->tax*$item->quantity;
-        }
-        return $tax;
     }
 }

@@ -20,8 +20,8 @@ class OfferSingleCollection extends JsonResource
             'slug' => $this->slug,
             'banner' => api_asset($this->banner),
             'start_date' => $this->start_date,
-            'end_date' => Carbon::parse($this->end_date)->toDateTimeString(),
-            'products' => new ProductCollection($this->products),
+            'end_date' => Carbon::createFromTimestamp($this->end_date)->toDateTimeString(),
+            'products' => new ProductCollection(filter_products($this->products)),
         ];
     }
     public function with($request)

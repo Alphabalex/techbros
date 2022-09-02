@@ -27,7 +27,7 @@
                 <div class="form-group mb-0 text-right">
                     <button type="submit" class="btn btn-primary">{{translate('Save')}}</button>
                 </div>
-              </from>
+              </form>
             </div>
         </div>
     </div>
@@ -41,13 +41,6 @@
         var coupon_type = $('#coupon_type').val();
 		$.post('{{ route('coupon.get_coupon_form') }}',{_token:'{{ csrf_token() }}', coupon_type:coupon_type}, function(data){
             $('#coupon_form').html(data);
-
-         //    $('#demo-dp-range .input-daterange').datepicker({
-         //        startDate: '-0d',
-         //        todayBtn: "linked",
-         //        autoclose: true,
-         //        todayHighlight: true
-        	// });
 		});
     }
 

@@ -472,7 +472,6 @@
             <button type="submit" class="btn btn-primary" id="upload-product">{{ translate('Upload Product') }}</button>
         </div>
     </form>
-
 @endsection
 
 @section('script')

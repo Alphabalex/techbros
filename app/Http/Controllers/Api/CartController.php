@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Resources\CartCollection;
+use App\Http\Resources\ShopCollection;
+use App\Http\Resources\ShopResource;
 use App\Models\Cart;
-use App\Models\Color;
-use App\Models\Offer;
-use App\Models\OfferProduct;
 use App\Models\ProductVariation;
+use App\Models\Shop;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -23,21 +23,28 @@ class CartController extends Controller
             $carts = collect();
         }
 
+        $shops = array();
+
         foreach($carts as $key => $cart_item){
             //if variation no found remove from cart item
-            if(!$cart_item->variation){
+            if(!$cart_item->variation || !$cart_item->product){
                 $cart_item->delete();
                 $carts->forget($key);
+            }elseif(!in_array($cart_item->product->shop_id,$shops)){
+                array_push($shops,$cart_item->product->shop_id);
             }
         }
-
-        return new CartCollection($carts);
+        return response()->json([
+            'success' => true,
+            'cart_items' => new CartCollection($carts),
+            'shops' => new ShopCollection(Shop::with('categories')->withCount(['products', 'reviews'])->find($shops))
+        ]);
 
     }
 
     public function add(Request $request)
     {
-        $product_variation = ProductVariation::with(['product','combinations.attribute','combinations.attribute_value'])->findOrFail($request->variation_id);
+        $product_variation = ProductVariation::with(['product.shop','combinations.attribute','combinations.attribute_value'])->findOrFail($request->variation_id);
 
         $user_id = (auth('api')->check()) ? auth('api')->user()->id : null;
         $temp_user_id = $request->temp_user_id;
@@ -54,6 +61,7 @@ class CartController extends Controller
         $product = [
             'cart_id' => (integer) $cart->id,
             'product_id' => (integer) $cart->product_id,
+            'shop_id' => (integer) $product_variation->product->shop_id,
             'variation_id' => (integer) $cart->product_variation_id,
             'name' => $product_variation->product->name,
             'combinations' => filter_variation_combinations($product_variation->combinations),
@@ -72,6 +80,7 @@ class CartController extends Controller
         return response()->json([
             'success' => true,
             'data' => $product,
+            'shop' => new ShopResource($product_variation->product->shop),
             'message' => translate('Product added to cart successfully'),
         ],200);
     }

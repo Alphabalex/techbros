@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Address;
+use App\Models\City;
+use App\Models\Country;
+use App\Models\State;
 use Auth;
 
 class AddressController extends Controller
@@ -44,8 +47,12 @@ class AddressController extends Controller
             $address->user_id = Auth::user()->id;
         }
         $address->address = $request->address;
-        $address->country = $request->country;
-        $address->city = $request->city;
+        $address->country_id = $request->country_id;
+        $address->country = Country::find((int) $request->country_id)->name;
+        $address->city_id = $request->city_id;
+        $address->city = City::find((int) $request->city_id)->name;
+        $address->state_id = $request->state_id;
+        $address->state = State::find((int) $request->state_id)->name;
         $address->postal_code = $request->postal_code;
         $address->phone = $request->phone;
         $address->save();
@@ -102,6 +109,28 @@ class AddressController extends Controller
         }
         flash(translate('Default address can not be deleted'))->warning();
         return back();
+    }
+
+    public function getStates(Request $request) {
+        $states = State::where('status', 1)->where('country_id', $request->country_id)->get();
+        $html = '<option value="">'.translate("Select State").'</option>';
+        
+        foreach ($states as $state) {
+            $html .= '<option value="' . $state->id . '">' . $state->name . '</option>';
+        }
+        
+        return json_encode($html);
+    }
+    
+    public function getCities(Request $request) {
+        $cities = City::where('status', 1)->where('state_id', $request->state_id)->get();
+        $html = '<option value="">'.translate("Select City").'</option>';
+        
+        foreach ($cities as $row) {
+            $html .= '<option value="' . $row->id . '">' . $row->name . '</option>';
+        }
+        
+        return json_encode($html);
     }
 
     public function set_default($id){

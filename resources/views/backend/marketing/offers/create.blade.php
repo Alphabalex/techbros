@@ -40,7 +40,7 @@
                 <div class="form-group row mb-3">
                     <label class="col-sm-3 control-label" for="products">{{translate('Products')}}</label>
                     <div class="col-sm-9">
-                        <select name="products[]" id="products" class="form-control aiz-selectpicker" multiple required data-title="{{ translate('Choose Products') }}" data-selected-text-format="count">
+                        <select name="products[]" id="products" class="form-control aiz-selectpicker" multiple required data-title="{{ translate('Choose Products') }}" data-selected-text-format="count" data-live-search="true">
                             @foreach(\App\Models\Product::where('published',1)->latest()->get() as $product)
                                 <option value="{{$product->id}}">{{ $product->name }}</option>
                             @endforeach

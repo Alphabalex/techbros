@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ManualPaymentResource;
+use App\Models\Addon;
+use App\Models\Blog;
 use App\Models\Category;
 use App\Models\Country;
 use App\Models\Currency;
 use Illuminate\Http\Request;
 use App\Models\Language;
+use App\Models\ManualPaymentMethod;
 use App\Models\Page;
 use App\Models\Product;
 use Cache;
@@ -38,6 +42,14 @@ class HomeController extends Controller
                 $meta['meta_description'] = $category->meta_description ? $category->meta_description : $meta['meta_description'];
                 $meta['meta_image'] = $category->meta_image ? api_asset($category->meta_image) : $meta['meta_image'];
             }
+        } elseif (Route::currentRouteName() == 'blog.details') {
+            $blog = Blog::where('slug', $slug)->first();
+            if ($blog) {
+                $meta['meta_title'] = $blog->meta_title ? $blog->meta_title : $meta['meta_title'];
+                $meta['meta_description'] = $blog->meta_description ? $blog->meta_description : $meta['meta_description'];
+                $meta['meta_image'] = $blog->meta_image ? api_asset($blog->meta_image) : $meta['meta_image'];
+                $meta['meta_keywords'] = $blog->meta_keywords ? $blog->meta_keywords : $meta['meta_keywords'];
+            }
         } elseif ($slug) {
             $page = Page::where('slug', $slug)->first();
             if ($page) {
@@ -50,12 +62,14 @@ class HomeController extends Controller
 
         $settings = [
             'appName' => config('app.name'),
+            'appMetaTitle' => get_setting('meta_title'),
             'appLogo' => get_setting('header_logo') ? api_asset(get_setting('header_logo')) : static_asset('assets/img/logo.svg'),
             'appUrl' => getBaseURL(),
             'demoMode' => env('DEMO_MODE') == "On" ? true : false,
             'cacheVersion' => get_setting('force_cache_clear_version'),
-            'appLanguage' => app()->getLocale(),
-            'allLanguages' => Language::all('name', 'code', 'flag', 'rtl'),
+            'appLanguage' => env('DEFAULT_LANGUAGE'),
+            'allLanguages' => Language::where('status',1)->get(['name', 'code', 'flag', 'rtl']),
+            // 'allCurrencies' => Currency::all(),
             'availableCountries' => Country::where('status', 1)->pluck('code')->toArray(),
             'paymentMethods' => [
                 [
@@ -89,6 +103,12 @@ class HomeController extends Controller
                     'img' => static_asset("assets/img/cards/flutterwave.png")
                 ],
                 [
+                    'status' => get_setting('razorpay_payment'),
+                    'code' => 'razorpay',
+                    'name' => 'Razorpay',
+                    'img' => static_asset("assets/img/cards/razorpay.png")
+                ],
+                [
                     'status' => get_setting('paytm_payment'),
                     'code' => 'paytm',
                     'name' => 'Paytm',
@@ -97,13 +117,18 @@ class HomeController extends Controller
                 [
                     'status' => get_setting('cash_payment'),
                     'code' => 'cash_on_delivery',
-                    'name' => 'Cash on Delivery',
+                    'name' => translate('Cash on Delivery'),
                     'img' => static_asset("assets/img/cards/cod.png")
                 ],
             ],
+            'offlinePaymentMethods' => [],
+            'addons' => Cache::remember('web_addons', 86400, function () {
+                return Addon::select('unique_identifier','version','activated')->get();
+            }),
             'general_settings' => [
-                'email_verification' => get_setting('email_verification'),
                 'wallet_system' => get_setting('wallet_system'),
+                'conversation_system' => get_setting('conversation_system'),
+                'sticky_header' => get_setting('sticky_header'),
                 'chat' => [
                     'customer_chat_logo' => api_asset(get_setting('customer_chat_logo')),
                     'customer_chat_name' => get_setting('customer_chat_name'),
@@ -120,6 +145,7 @@ class HomeController extends Controller
                     'decimal_separator' => get_setting('decimal_separator'),
                     'symbol_format' => get_setting('symbol_format'),
                     'no_of_decimals' => get_setting('no_of_decimals'),
+                    'truncate_price' => get_setting('truncate_price'),
                 ]
             ],
             'banners' => [
@@ -155,8 +181,30 @@ class HomeController extends Controller
                     "img" => api_asset(get_setting('dashboard_page_bottom_banner')),
                     "link" => get_setting('dashboard_page_bottom_banner_link')
                 ],
+                "all_shops_page" => [
+                    "img" => api_asset(get_setting('all_shops_page_banner')),
+                    "link" => get_setting('all_shops_page_banner_link')
+                ],
+                "shop_registration_page" => [
+                    "img" => api_asset(get_setting('shop_registration_page_banner')),
+                    "link" => get_setting('shop_registration_page_banner_link')
+                ],
             ],
+            'refundSettings' => [
+                'refund_request_time_period' => get_setting('refund_request_time_period')*86400,
+                'refund_request_order_status' => json_decode(get_setting('refund_request_order_status')),
+                'refund_reason_types' => json_decode(get_setting('refund_reason_types'))
+            ],
+            'authSettings' =>[
+                'customer_login_with' => get_setting('customer_login_with'),
+                'customer_otp_with' => get_setting('customer_otp_with'),
+            ]
         ];
+
+        if(get_setting('offline_payment') == 1){
+            $settings['offlinePaymentMethods'] = json_decode(ManualPaymentResource::collection(ManualPaymentMethod::all())->toJson());
+        }
+                
         return view('frontend.app', compact('settings', 'meta'));
     }
 }

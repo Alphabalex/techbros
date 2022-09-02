@@ -6,9 +6,11 @@ use App\Http\Resources\AllCategoryCollection;
 use App\Http\Resources\CategoryCollection;
 use App\Http\Resources\ProductCollection;
 use App\Http\Resources\SettingsCollection;
+use App\Http\Resources\ShopCollection;
 use App\Models\AppSettings;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Shop;
 use Cache;
 
 class SettingController extends Controller
@@ -50,7 +52,7 @@ class SettingController extends Controller
             case 'product_section_one':
                 $data = Cache::remember('product_section_one', 86400, function () {
                     $product_section_1_products = get_setting('home_product_section_1_products')
-                        ? Product::whereIn('id', json_decode(get_setting('home_product_section_1_products')))->where('published',1)->get()
+                        ? filter_products(Product::whereIn('id', json_decode(get_setting('home_product_section_1_products'))))->get()
                         : [];
                     return [
                         'title' => get_setting('home_product_section_1_title'),
@@ -62,7 +64,7 @@ class SettingController extends Controller
             case 'product_section_two':
                 $data = Cache::remember('product_section_two', 86400, function () {
                     $product_section_2_products = get_setting('home_product_section_2_products')
-                        ? Product::whereIn('id', json_decode(get_setting('home_product_section_2_products')))->where('published',1)->get()
+                        ? filter_products(Product::whereIn('id', json_decode(get_setting('home_product_section_2_products'))))->get()
                         : [];
                     return [
                         'title' => get_setting('home_product_section_2_title'),
@@ -74,7 +76,7 @@ class SettingController extends Controller
             case 'product_section_three':
                 $data = Cache::remember('product_section_three', 86400, function () {
                     $product_section_3_products = get_setting('home_product_section_3_products')
-                        ? Product::whereIn('id', json_decode(get_setting('home_product_section_3_products')))->where('published',1)->get()
+                        ? filter_products(Product::whereIn('id', json_decode(get_setting('home_product_section_3_products'))))->get()
                         : [];
                     return [
                         'title' => get_setting('home_product_section_3_title'),
@@ -90,7 +92,7 @@ class SettingController extends Controller
             case 'product_section_four':
                 $data = Cache::remember('product_section_four', 86400, function () {
                     $product_section_4_products = get_setting('home_product_section_4_products')
-                        ? Product::whereIn('id', json_decode(get_setting('home_product_section_4_products')))->where('published',1)->get()
+                        ? filter_products(Product::whereIn('id', json_decode(get_setting('home_product_section_4_products'))))->get()
                         : [];
                     return [
                         'title' => get_setting('home_product_section_4_title'),
@@ -102,7 +104,7 @@ class SettingController extends Controller
             case 'product_section_five':
                 $data = Cache::remember('product_section_five', 86400, function () {
                     $product_section_5_products = get_setting('home_product_section_5_products')
-                        ? Product::whereIn('id', json_decode(get_setting('home_product_section_5_products')))->where('published',1)->get()
+                        ? filter_products(Product::whereIn('id', json_decode(get_setting('home_product_section_5_products'))))->get()
                         : [];
                     return [
                         'title' => get_setting('home_product_section_5_title'),
@@ -114,7 +116,7 @@ class SettingController extends Controller
             case 'product_section_six':
                 $data = Cache::remember('product_section_six', 86400, function () {
                     $product_section_6_products = get_setting('home_product_section_6_products')
-                        ? Product::whereIn('id', json_decode(get_setting('home_product_section_6_products')))->where('published',1)->get()
+                        ? filter_products(Product::whereIn('id', json_decode(get_setting('home_product_section_6_products'))))->get()
                         : [];
                     return [
                         'title' => get_setting('home_product_section_6_title'),
@@ -154,7 +156,82 @@ class SettingController extends Controller
             case 'home_about_text':
                 $data = get_setting('home_about_us');
                 break;
-                
+
+            case 'shop_section_one':
+                $data = Cache::remember('shop_section_one', 86400, function () {
+                    $shop_section_1_shops = get_setting('home_shop_section_1_shops')
+                        ? filter_shops(Shop::withCount(['products','reviews'])->whereIn('id', json_decode(get_setting('home_shop_section_1_shops'))))->get()
+                        : [];
+                    return [
+                        'title' => get_setting('home_shop_section_1_title'),
+                        'shops' => new ShopCollection($shop_section_1_shops, true)
+                    ];
+                });
+                break;
+
+            case 'shop_banner_section_one':
+                $data = get_setting('home_shop_banner_1_images')
+                            ? banner_array_generate(get_setting('home_shop_banner_1_images'),get_setting('home_shop_banner_1_links'))
+                            : [];
+                break;
+
+            case 'shop_section_two':
+                $data = Cache::remember('shop_section_two', 86400, function () {
+                    $shop_section_2_shops = get_setting('home_shop_section_2_shops')
+                        ? filter_shops(Shop::withCount(['products','reviews'])->whereIn('id', json_decode(get_setting('home_shop_section_2_shops'))))->get()
+                        : [];
+                    return [
+                        'title' => get_setting('home_shop_section_2_title'),
+                        'shops' => new ShopCollection($shop_section_2_shops, true)
+                    ];
+                });
+                break;
+
+            case 'shop_banner_section_two':
+                $data = get_setting('home_shop_banner_2_images')
+                            ? banner_array_generate(get_setting('home_shop_banner_2_images'),get_setting('home_shop_banner_2_links'))
+                            : [];
+                break;
+
+            case 'shop_section_three':
+                $data = Cache::remember('shop_section_three', 86400, function () {
+                    $shop_section_3_shops = get_setting('home_shop_section_3_shops')
+                        ? filter_shops(Shop::withCount(['products','reviews'])->whereIn('id', json_decode(get_setting('home_shop_section_3_shops'))))->get()
+                        : [];
+                    return [
+                        'title' => get_setting('home_shop_section_3_title'),
+                        'shops' => new ShopCollection($shop_section_3_shops, true)
+                    ];
+                });
+                break;
+            case 'shop_section_four':
+                $data = Cache::remember('shop_section_four', 86400, function () {
+                    $shop_section_4_shops = get_setting('home_shop_section_4_shops')
+                        ? filter_shops(Shop::withCount(['products','reviews'])->whereIn('id', json_decode(get_setting('home_shop_section_4_shops'))))->get()
+                        : [];
+                    return [
+                        'title' => get_setting('home_shop_section_4_title'),
+                        'shops' => new ShopCollection($shop_section_4_shops, true)
+                    ];
+                });
+                break;
+            case 'shop_section_five':
+                $data = Cache::remember('shop_section_five', 86400, function () {
+                    $shop_section_5_shops = get_setting('home_shop_section_5_shops')
+                        ? filter_shops(Shop::withCount(['products','reviews'])->whereIn('id', json_decode(get_setting('home_shop_section_5_shops'))))->get()
+                        : [];
+                    return [
+                        'title' => get_setting('home_shop_section_5_title'),
+                        'shops' => new ShopCollection($shop_section_5_shops, true)
+                    ];
+                });
+                break;
+            case 'shop_banner_section_three':
+                $data = get_setting('home_shop_banner_3_images')
+                            ? banner_array_generate(get_setting('home_shop_banner_3_images'),get_setting('home_shop_banner_3_links'))
+                            : [];
+                break;
+
             default:
                 $data = null;
         }
@@ -173,9 +250,12 @@ class SettingController extends Controller
                     'link' => get_setting('topbar_banner_link')
                 ],
                 'mobile_app_links' => [
+                    'show_play_store' => get_setting('show_topbar_play_store_link') ?? 'off',
                     'play_store' => get_setting('topbar_play_store_link'),
+                    'show_app_store' => get_setting('show_topbar_app_store_link') ?? 'off',
                     'app_store' => get_setting('topbar_app_store_link'),
                 ],
+                'show_language_switcher' => get_setting('show_language_switcher') ?? 'off',
                 'helpline' => get_setting('topbar_helpline_number'),
                 'header_menu' => get_setting('header_menu_labels') !== null
                             ? array_combine(json_decode(get_setting('header_menu_labels')),json_decode(get_setting('header_menu_links')))

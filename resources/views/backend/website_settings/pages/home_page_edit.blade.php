@@ -2,6 +2,7 @@
 @section('content')
 @php
 	$all_products = \App\Models\Product::where('published',1)->get();
+	$all_shops = filter_shops(\App\Models\Shop::query())->get();
 @endphp
 <h6 class="fw-600">{{ translate('Home Page Settings') }}</h6>
 <div class="accordion" id="accordionExample">
@@ -455,6 +456,130 @@
 		</div>
 	</div>
 
+	@if (addon_is_activated('multi_vendor'))
+		{{-- shop section 1 --}}
+		<div class="card border-bottom">
+			<div class="card-header collapsed c-pointer" data-toggle="collapse" data-target="#collapseShopSectionOne" aria-expanded="true" aria-controls="collapseShopSectionOne">
+				<h6 class="my-2">{{ translate('Shop section 1') }}</h6>
+				<i class="las la-angle-down opacity-60 fs-20"></i>
+			</div>
+			<div id="collapseShopSectionOne" class="collapse" data-parent="#accordionExample">
+				<div class="card-body">
+					<form action="{{ route('settings.update') }}" method="POST" enctype="multipart/form-data">
+						@csrf
+						<div class="form-group row">
+							<label class="col-md-3 col-from-label">{{translate('Section title')}}</label>
+							<div class="col-md-9">
+								<input type="hidden" name="types[]" value="home_shop_section_1_title">
+								<input type="text" placeholder="" name="home_shop_section_1_title" value="{{ get_setting('home_shop_section_1_title') }}" class="form-control">
+							</div>
+						</div>
+						<div class="form-group row">
+							<label class="col-md-3 col-from-label">{{translate('Select shop')}}</label>
+							<div class="col-md-9">
+								<input type="hidden" name="types[]" value="home_shop_section_1_shops">
+								<select name="home_shop_section_1_shops[]" class="form-control aiz-selectpicker" multiple data-live-search="true" data-selected-text-format="count" data-selected="{{ get_setting('home_shop_section_1_shops') }}" data-container="body">
+									@foreach ($all_shops as $key => $shop)
+										<option value="{{ $shop->id }}">{{ $shop->name }}</option>
+									@endforeach
+								</select>
+							</div>
+						</div>
+						<div class="text-right">
+							<button type="submit" class="btn btn-primary">{{ translate('Update') }}</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		{{-- shop banner section 1 --}}
+		<div class="card border-bottom">
+			<div class="card-header collapsed c-pointer" data-toggle="collapse" data-target="#collapseHomeShopBannerOne" aria-expanded="true" aria-controls="collapseHomeShopBannerOne">
+				<h6 class="my-2">{{ translate('Home shop banner section 1') }}</h6>
+				<i class="las la-angle-down opacity-60 fs-20"></i>
+			</div>
+			<div id="collapseHomeShopBannerOne" class="collapse" data-parent="#accordionExample">
+				<div class="card-body">
+					<form action="{{ route('settings.update') }}" method="POST" enctype="multipart/form-data">
+						@csrf
+						<div class="form-group row gutters-10">
+							<div class="col-lg-3">
+								<label class="from-label d-block">{{translate('Banner image & link')}}</label>
+								<small>{{ translate('Recommended size').' 420x200' }}</small>
+							</div>
+							<div class="col-lg-9">
+								<div class="home-banner-3-target">
+									<input type="hidden" name="types[]" value="home_shop_banner_1_images">
+									<input type="hidden" name="types[]" value="home_shop_banner_1_links">
+									@if (get_setting('home_shop_banner_1_images') != null)
+									@foreach (json_decode(get_setting('home_shop_banner_1_images'), true) as $key => $value)
+										<div class="row">
+											<div class="col-lg-5">
+												<div class="form-group">
+													<div class="input-group" data-toggle="aizuploader" data-type="image">
+														<div class="input-group-prepend">
+															<div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse')}}</div>
+														</div>
+														<div class="form-control file-amount">{{ translate('Choose File') }}</div>
+														<input type="hidden" name="home_shop_banner_1_images[]" class="selected-files" value="{{ $value }}">
+													</div>
+													<div class="file-preview box sm"></div>
+												</div>
+											</div>
+											<div class="col-lg">
+												<input type="text" placeholder="" name="home_shop_banner_1_links[]" value="{{ json_decode(get_setting('home_shop_banner_1_links'),true)[$key] }}" class="form-control">
+											</div>
+											<div class="col-auto">
+												<button type="button" class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger" data-toggle="remove-parent" data-parent=".row">
+													<i class="las la-times"></i>
+												</button>
+											</div>
+										</div>
+									@endforeach
+									@endif
+								</div>
+								<div class="text-right">
+									<button
+										type="button"
+										class="btn btn-soft-secondary btn-sm"
+										data-toggle="add-more"
+										data-content='<div class="row gutters-5">
+											<div class="col-lg-5">
+												<div class="form-group">
+													<div class="input-group" data-toggle="aizuploader" data-type="image">
+														<div class="input-group-prepend">
+															<div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse')}}</div>
+														</div>
+														<div class="form-control file-amount">{{ translate('Choose File') }}</div>
+														<input type="hidden" name="home_shop_banner_1_images[]" class="selected-files">
+													</div>
+													<div class="file-preview box sm"></div>
+												</div>
+											</div>
+											<div class="col-lg">
+												<input type="text" placeholder="" name="home_shop_banner_1_links[]" class="form-control">
+											</div>
+											<div class="col-auto">
+												<button type="button" class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger" data-toggle="remove-parent" data-parent=".row">
+													<i class="las la-times"></i>
+												</button>
+											</div>
+										</div>'
+										data-target=".home-banner-3-target">
+										{{ translate('Add New') }}
+									</button>
+								</div>
+							</div>
+						</div>
+						<div class="text-right">
+							<button type="submit" class="btn btn-primary">{{ translate('Update') }}</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	@endif
 
 	<!-- Product section 2 -->
 	<div class="card border-bottom">
@@ -578,6 +703,167 @@
 			</div>
 		</div>
 	</div>
+
+	@if (addon_is_activated('multi_vendor'))
+		{{-- shop section 2 --}}
+		<div class="card border-bottom">
+			<div class="card-header collapsed c-pointer" data-toggle="collapse" data-target="#collapseShopSectionTwo" aria-expanded="true" aria-controls="collapseShopSectionTwo">
+				<h6 class="my-2">{{ translate('Shop section 2') }}</h6>
+				<i class="las la-angle-down opacity-60 fs-20"></i>
+			</div>
+			<div id="collapseShopSectionTwo" class="collapse" data-parent="#accordionExample">
+				<div class="card-body">
+					<form action="{{ route('settings.update') }}" method="POST" enctype="multipart/form-data">
+						@csrf
+						<div class="form-group row">
+							<label class="col-md-3 col-from-label">{{translate('Section title')}}</label>
+							<div class="col-md-9">
+								<input type="hidden" name="types[]" value="home_shop_section_2_title">
+								<input type="text" placeholder="" name="home_shop_section_2_title" value="{{ get_setting('home_shop_section_2_title') }}" class="form-control">
+							</div>
+						</div>
+						<div class="form-group row">
+							<label class="col-md-3 col-from-label">{{translate('Select shop')}}</label>
+							<div class="col-md-9">
+								<input type="hidden" name="types[]" value="home_shop_section_2_shops">
+								<select name="home_shop_section_2_shops[]" class="form-control aiz-selectpicker" multiple data-live-search="true" data-selected-text-format="count" data-selected="{{ get_setting('home_shop_section_2_shops') }}" data-container="body">
+									@foreach ($all_shops as $key => $shop)
+										<option value="{{ $shop->id }}">{{ $shop->name }}</option>
+									@endforeach
+								</select>
+							</div>
+						</div>
+						<div class="text-right">
+							<button type="submit" class="btn btn-primary">{{ translate('Update') }}</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		{{-- shop banner section 2 --}}
+		<div class="card border-bottom">
+			<div class="card-header collapsed c-pointer" data-toggle="collapse" data-target="#collapseHomeShopBannerTwo" aria-expanded="true" aria-controls="collapseHomeShopBannerTwo">
+				<h6 class="my-2">{{ translate('Home shop banner section 2') }}</h6>
+				<i class="las la-angle-down opacity-60 fs-20"></i>
+			</div>
+			<div id="collapseHomeShopBannerTwo" class="collapse" data-parent="#accordionExample">
+				<div class="card-body">
+					<form action="{{ route('settings.update') }}" method="POST" enctype="multipart/form-data">
+						@csrf
+						<div class="form-group row gutters-10">
+							<div class="col-lg-3">
+								<label class="from-label d-block">{{translate('Banner image & link')}}</label>
+								<small>{{ translate('Recommended size').' 1300x350' }}</small>
+							</div>
+							<div class="col-lg-9">
+								<div class="home-banner-3-target">
+									<input type="hidden" name="types[]" value="home_shop_banner_2_images">
+									<input type="hidden" name="types[]" value="home_shop_banner_2_links">
+									@if (get_setting('home_shop_banner_2_images') != null)
+									@foreach (json_decode(get_setting('home_shop_banner_2_images'), true) as $key => $value)
+										<div class="row">
+											<div class="col-lg-5">
+												<div class="form-group">
+													<div class="input-group" data-toggle="aizuploader" data-type="image">
+														<div class="input-group-prepend">
+															<div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse')}}</div>
+														</div>
+														<div class="form-control file-amount">{{ translate('Choose File') }}</div>
+														<input type="hidden" name="home_shop_banner_2_images[]" class="selected-files" value="{{ $value }}">
+													</div>
+													<div class="file-preview box sm"></div>
+												</div>
+											</div>
+											<div class="col-lg">
+												<input type="text" placeholder="" name="home_shop_banner_2_links[]" value="{{ json_decode(get_setting('home_shop_banner_2_links'),true)[$key] }}" class="form-control">
+											</div>
+											<div class="col-auto">
+												<button type="button" class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger" data-toggle="remove-parent" data-parent=".row">
+													<i class="las la-times"></i>
+												</button>
+											</div>
+										</div>
+									@endforeach
+									@endif
+								</div>
+								<div class="text-right">
+									<button
+										type="button"
+										class="btn btn-soft-secondary btn-sm"
+										data-toggle="add-more"
+										data-content='<div class="row gutters-5">
+											<div class="col-lg-5">
+												<div class="form-group">
+													<div class="input-group" data-toggle="aizuploader" data-type="image">
+														<div class="input-group-prepend">
+															<div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse')}}</div>
+														</div>
+														<div class="form-control file-amount">{{ translate('Choose File') }}</div>
+														<input type="hidden" name="home_shop_banner_2_images[]" class="selected-files">
+													</div>
+													<div class="file-preview box sm"></div>
+												</div>
+											</div>
+											<div class="col-lg">
+												<input type="text" placeholder="" name="home_shop_banner_2_links[]" class="form-control">
+											</div>
+											<div class="col-auto">
+												<button type="button" class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger" data-toggle="remove-parent" data-parent=".row">
+													<i class="las la-times"></i>
+												</button>
+											</div>
+										</div>'
+										data-target=".home-banner-3-target">
+										{{ translate('Add New') }}
+									</button>
+								</div>
+							</div>
+						</div>
+						<div class="text-right">
+							<button type="submit" class="btn btn-primary">{{ translate('Update') }}</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		{{-- shop section 3 --}}
+		<div class="card border-bottom">
+			<div class="card-header collapsed c-pointer" data-toggle="collapse" data-target="#collapseShopSectionThree" aria-expanded="true" aria-controls="collapseShopSectionThree">
+				<h6 class="my-2">{{ translate('Shop section 3') }}</h6>
+				<i class="las la-angle-down opacity-60 fs-20"></i>
+			</div>
+			<div id="collapseShopSectionThree" class="collapse" data-parent="#accordionExample">
+				<div class="card-body">
+					<form action="{{ route('settings.update') }}" method="POST" enctype="multipart/form-data">
+						@csrf
+						<div class="form-group row">
+							<label class="col-md-3 col-from-label">{{translate('Section title')}}</label>
+							<div class="col-md-9">
+								<input type="hidden" name="types[]" value="home_shop_section_3_title">
+								<input type="text" placeholder="" name="home_shop_section_3_title" value="{{ get_setting('home_shop_section_3_title') }}" class="form-control">
+							</div>
+						</div>
+						<div class="form-group row">
+							<label class="col-md-3 col-from-label">{{translate('Select shop')}}</label>
+							<div class="col-md-9">
+								<input type="hidden" name="types[]" value="home_shop_section_3_shops">
+								<select name="home_shop_section_3_shops[]" class="form-control aiz-selectpicker" multiple data-live-search="true" data-selected-text-format="count" data-selected="{{ get_setting('home_shop_section_3_shops') }}" data-container="body">
+									@foreach ($all_shops as $key => $shop)
+										<option value="{{ $shop->id }}">{{ $shop->name }}</option>
+									@endforeach
+								</select>
+							</div>
+						</div>
+						<div class="text-right">
+							<button type="submit" class="btn btn-primary">{{ translate('Update') }}</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	@endif
 
 	<!-- Product section 3 -->
 	<div class="card border-bottom">
@@ -725,6 +1011,44 @@
 		</div>
 	</div>
 
+	@if (addon_is_activated('multi_vendor'))
+		{{-- shop section 4 --}}
+		<div class="card border-bottom">
+			<div class="card-header collapsed c-pointer" data-toggle="collapse" data-target="#collapseShopSectionFour" aria-expanded="true" aria-controls="collapseShopSectionFour">
+				<h6 class="my-2">{{ translate('Shop section 4') }}</h6>
+				<i class="las la-angle-down opacity-60 fs-20"></i>
+			</div>
+			<div id="collapseShopSectionFour" class="collapse" data-parent="#accordionExample">
+				<div class="card-body">
+					<form action="{{ route('settings.update') }}" method="POST" enctype="multipart/form-data">
+						@csrf
+						<div class="form-group row">
+							<label class="col-md-3 col-from-label">{{translate('Section title')}}</label>
+							<div class="col-md-9">
+								<input type="hidden" name="types[]" value="home_shop_section_4_title">
+								<input type="text" placeholder="" name="home_shop_section_4_title" value="{{ get_setting('home_shop_section_4_title') }}" class="form-control">
+							</div>
+						</div>
+						<div class="form-group row">
+							<label class="col-md-3 col-from-label">{{translate('Select shop')}}</label>
+							<div class="col-md-9">
+								<input type="hidden" name="types[]" value="home_shop_section_4_shops">
+								<select name="home_shop_section_4_shops[]" class="form-control aiz-selectpicker" multiple data-live-search="true" data-selected-text-format="count" data-selected="{{ get_setting('home_shop_section_4_shops') }}" data-container="body">
+									@foreach ($all_shops as $key => $shop)
+										<option value="{{ $shop->id }}">{{ $shop->name }}</option>
+									@endforeach
+								</select>
+							</div>
+						</div>
+						<div class="text-right">
+							<button type="submit" class="btn btn-primary">{{ translate('Update') }}</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	@endif
+
 	<!-- Product section 4 -->
 	<div class="card border-bottom">
 		<div class="card-header collapsed c-pointer" data-toggle="collapse" data-target="#collapseProductSectionFour" aria-expanded="true" aria-controls="collapseProductSectionFour">
@@ -760,6 +1084,131 @@
 			</div>
 		</div>
 	</div>
+
+	@if (addon_is_activated('multi_vendor'))
+		{{-- shop section 5 --}}
+		<div class="card border-bottom">
+			<div class="card-header collapsed c-pointer" data-toggle="collapse" data-target="#collapseShopSectionFive" aria-expanded="true" aria-controls="collapseShopSectionFive">
+				<h6 class="my-2">{{ translate('Shop section 5') }}</h6>
+				<i class="las la-angle-down opacity-60 fs-20"></i>
+			</div>
+			<div id="collapseShopSectionFive" class="collapse" data-parent="#accordionExample">
+				<div class="card-body">
+					<form action="{{ route('settings.update') }}" method="POST" enctype="multipart/form-data">
+						@csrf
+						<div class="form-group row">
+							<label class="col-md-3 col-from-label">{{translate('Section title')}}</label>
+							<div class="col-md-9">
+								<input type="hidden" name="types[]" value="home_shop_section_5_title">
+								<input type="text" placeholder="" name="home_shop_section_5_title" value="{{ get_setting('home_shop_section_5_title') }}" class="form-control">
+							</div>
+						</div>
+						<div class="form-group row">
+							<label class="col-md-3 col-from-label">{{translate('Select shop')}}</label>
+							<div class="col-md-9">
+								<input type="hidden" name="types[]" value="home_shop_section_5_shops">
+								<select name="home_shop_section_5_shops[]" class="form-control aiz-selectpicker" multiple data-live-search="true" data-selected-text-format="count" data-selected="{{ get_setting('home_shop_section_5_shops') }}" data-container="body">
+									@foreach ($all_shops as $key => $shop)
+										<option value="{{ $shop->id }}">{{ $shop->name }}</option>
+									@endforeach
+								</select>
+							</div>
+						</div>
+						<div class="text-right">
+							<button type="submit" class="btn btn-primary">{{ translate('Update') }}</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		{{-- shop banner section 2 --}}
+		<div class="card border-bottom">
+			<div class="card-header collapsed c-pointer" data-toggle="collapse" data-target="#collapseHomeShopBannerThree" aria-expanded="true" aria-controls="collapseHomeShopBannerThree">
+				<h6 class="my-2">{{ translate('Home shop banner section 3') }}</h6>
+				<i class="las la-angle-down opacity-60 fs-20"></i>
+			</div>
+			<div id="collapseHomeShopBannerThree" class="collapse" data-parent="#accordionExample">
+				<div class="card-body">
+					<form action="{{ route('settings.update') }}" method="POST" enctype="multipart/form-data">
+						@csrf
+						<div class="form-group row gutters-10">
+							<div class="col-lg-3">
+								<label class="from-label d-block">{{translate('Banner image & link')}}</label>
+								<small>{{ translate('Recommended size').' 640x290' }}</small>
+							</div>
+							<div class="col-lg-9">
+								<div class="home-banner-3-target">
+									<input type="hidden" name="types[]" value="home_shop_banner_3_images">
+									<input type="hidden" name="types[]" value="home_shop_banner_3_links">
+									@if (get_setting('home_shop_banner_3_images') != null)
+									@foreach (json_decode(get_setting('home_shop_banner_3_images'), true) as $key => $value)
+										<div class="row">
+											<div class="col-lg-5">
+												<div class="form-group">
+													<div class="input-group" data-toggle="aizuploader" data-type="image">
+														<div class="input-group-prepend">
+															<div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse')}}</div>
+														</div>
+														<div class="form-control file-amount">{{ translate('Choose File') }}</div>
+														<input type="hidden" name="home_shop_banner_3_images[]" class="selected-files" value="{{ $value }}">
+													</div>
+													<div class="file-preview box sm"></div>
+												</div>
+											</div>
+											<div class="col-lg">
+												<input type="text" placeholder="" name="home_shop_banner_3_links[]" value="{{ json_decode(get_setting('home_shop_banner_3_links'),true)[$key] }}" class="form-control">
+											</div>
+											<div class="col-auto">
+												<button type="button" class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger" data-toggle="remove-parent" data-parent=".row">
+													<i class="las la-times"></i>
+												</button>
+											</div>
+										</div>
+									@endforeach
+									@endif
+								</div>
+								<div class="text-right">
+									<button
+										type="button"
+										class="btn btn-soft-secondary btn-sm"
+										data-toggle="add-more"
+										data-content='<div class="row gutters-5">
+											<div class="col-lg-5">
+												<div class="form-group">
+													<div class="input-group" data-toggle="aizuploader" data-type="image">
+														<div class="input-group-prepend">
+															<div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse')}}</div>
+														</div>
+														<div class="form-control file-amount">{{ translate('Choose File') }}</div>
+														<input type="hidden" name="home_shop_banner_3_images[]" class="selected-files">
+													</div>
+													<div class="file-preview box sm"></div>
+												</div>
+											</div>
+											<div class="col-lg">
+												<input type="text" placeholder="" name="home_shop_banner_3_links[]" class="form-control">
+											</div>
+											<div class="col-auto">
+												<button type="button" class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger" data-toggle="remove-parent" data-parent=".row">
+													<i class="las la-times"></i>
+												</button>
+											</div>
+										</div>'
+										data-target=".home-banner-3-target">
+										{{ translate('Add New') }}
+									</button>
+								</div>
+							</div>
+						</div>
+						<div class="text-right">
+							<button type="submit" class="btn btn-primary">{{ translate('Update') }}</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	@endif
 
 	<!-- Product section 5 -->
 	<div class="card border-bottom">

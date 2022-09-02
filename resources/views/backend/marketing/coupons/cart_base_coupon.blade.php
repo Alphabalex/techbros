@@ -52,7 +52,7 @@
 <div class="form-group row">
     <label class="col-sm-3 control-label" for="start_date">{{ translate('Date') }}</label>
     <div class="col-sm-9">
-        <input type="text" class="form-control aiz-date-range" name="date_range" placeholder="Select Date">
+        <input type="text" class="form-control aiz-date-range" name="date_range" placeholder="Select Date" data-separator=" - ">
     </div>
 </div>
 

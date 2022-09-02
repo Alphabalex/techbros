@@ -32,7 +32,7 @@ class CurrencyController extends Controller
         }
         $currencies = $currencies->paginate(10);
 
-        $active_currencies = Currency::where('status', 1)->get();
+        $active_currencies = Currency::all();
         return view('backend.settings.currencies.index', compact('currencies', 'active_currencies','sort_search'));
     }
 

@@ -15,6 +15,9 @@ class WalletCollection extends ResourceCollection
                     'date' => $data->created_at->toDateString(),
                     'amount' => $data->amount,
                     'payment_method' => $data->payment_method,
+                    'type' => $data->type,
+                    'details' => $data->details,
+                    'receipt' => $data->reciept ? my_asset($data->reciept): null,
                 ];
             })
         ];

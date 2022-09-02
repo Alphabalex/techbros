@@ -2,9 +2,7 @@
 
 namespace App\Http\Resources;
 
-use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\ResourceCollection;
-use App\Http\Resources\OrderProductCollection;
 
 class OrderCollection extends ResourceCollection
 {
@@ -23,16 +21,8 @@ class OrderCollection extends ResourceCollection
                     ],
                     'shipping_address' => json_decode($data->shipping_address),
                     'billing_address' => json_decode($data->billing_address),
-                    'payment_type' => $data->payment_type,
-                    'delivery_type' => $data->delivery_type,
-                    'delivery_status' => $data->delivery_status,
-                    'payment_status' => $data->payment_status,
                     'grand_total' => (double) $data->grand_total,
-                    'coupon_discount' => (double) $data->coupon_discount,
-                    'shipping_cost' => (double) $data->shipping_cost,
-                    'subtotal' => (double) $data->orderDetails->sum('total') - $this->calculateTotalTax($data->orderDetails),
-                    'tax' => (double) $this->calculateTotalTax($data->orderDetails),
-                    'products' => new OrderProductCollection($data->orderDetails),
+                    'orders' => OrderResource::collection($data->orders),
                     'date' => $data->created_at->toFormattedDateString()
                 ];
             })

@@ -36,8 +36,11 @@
                             {{ $zone->name }}
                         </td>
                         <td>
-                            @foreach (json_decode($zone->cities) as $city_id)
-                                <span class="badge badge-inline badge-md bg-soft-dark mb-1">{{ App\Models\City::find($city_id)->name }}</span>
+                            @foreach (json_decode($zone->cities ?? '[]') as $city_id)
+                                @php $city = App\Models\City::find($city_id); @endphp
+                                @if($city)
+                                    <span class="badge badge-inline badge-md bg-soft-dark mb-1">{{ $city->name }}</span>
+                                @endif
                             @endforeach
                         </td>
                         <td>

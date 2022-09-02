@@ -17,6 +17,8 @@ class ProductSingleCollection extends JsonResource
         return [
             'id' => (integer) $this->id,
             'name' => $this->getTranslation('name'),
+            'slug' => $this->slug,
+            'metaTitle' => $this->meta_title,
             'brand' => [
                 'id' => optional($this->brand)->id,
                 'name' => optional($this->brand)->getTranslation('name'),
@@ -53,6 +55,13 @@ class ProductSingleCollection extends JsonResource
             'description' => $this->getTranslation('description'),
             'variations' => filter_product_variations($this->variations,$this),
             'variation_options' => generate_variation_options($this->variation_combinations),
+            'shop' => [
+                'name' => $this->shop->name,
+                'logo' => api_asset($this->shop->logo),
+                'rating' => (double) $this->shop->rating,
+                'review_count' => $this->shop->reviews_count,
+                'slug' => $this->shop->slug,
+            ]
         ];
     }
 

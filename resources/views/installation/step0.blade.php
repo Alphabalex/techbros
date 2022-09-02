@@ -11,7 +11,7 @@
                             <p>You will need to know the following items before proceeding.</p>
                         </div>
                         <ol class="list-group">
-                            <li class="list-group-item text-semibold"><i class="la la-check"></i> <a target="_blank" href="https://nulleb.com">NULLEB.COM</a>
+                            <li class="list-group-item text-semibold"><i class="la la-check"></i>
                             </li>
                             <li class="list-group-item text-semibold"><i class="la la-check"></i> Database Name</li>
                             <li class="list-group-item text-semibold"><i class="la la-check"></i> Database Username</li>

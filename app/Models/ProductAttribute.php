@@ -10,11 +10,13 @@ class ProductAttribute extends Model
         'product_id', 'attribute_id',
     ];
 
-    public function product(){
-    	return $this->belongsTo(Product::class)->withTrashed();
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
     }
 
-    public function attribute(){
-    	return $this->belongsTo(Attribute::class);
+    public function attribute()
+    {
+        return $this->belongsTo(Attribute::class);
     }
 }

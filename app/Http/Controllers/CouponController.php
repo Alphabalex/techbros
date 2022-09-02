@@ -23,7 +23,7 @@ class CouponController extends Controller
      */
     public function index()
     {
-        $coupons = Coupon::orderBy('id', 'desc')->get();
+        $coupons = Coupon::where('shop_id',auth()->user()->shop_id)->latest()->get();
         return view('backend.marketing.coupons.index', compact('coupons'));
     }
 
@@ -51,6 +51,7 @@ class CouponController extends Controller
         }
         $coupon = new Coupon;
         $coupon->type = $request->coupon_type;
+        $coupon->shop_id = auth()->user()->shop_id;
         $coupon->code = $request->coupon_code;
         $coupon->banner = $request->banner;
         $coupon->discount = $request->discount;
@@ -126,6 +127,11 @@ class CouponController extends Controller
         }
 
         $coupon = Coupon::findOrFail($id);
+        
+        if($coupon->shop_id != auth()->user()->shop_id){
+            abort(403);
+        }
+
         $coupon->type = $request->coupon_type;
         $coupon->code = $request->coupon_code;
         $coupon->banner = $request->banner;
@@ -173,6 +179,10 @@ class CouponController extends Controller
     public function destroy($id)
     {
         $coupon = Coupon::findOrFail($id);
+        if($coupon->shop_id != auth()->user()->shop_id){
+            abort(403);
+        }
+
         if (Coupon::destroy($id)) {
             flash(translate('Coupon has been deleted successfully'))->success();
             return redirect()->route('coupon.index');

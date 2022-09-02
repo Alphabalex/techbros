@@ -50,7 +50,9 @@
             line-height: 1.6;
             font-size: 14px;
         }
-
+        .header-sticky{
+            z-index: 8;
+        }
         :root {
             --primary: {{ get_setting('base_color', '#e62d04') }};
             --soft-primary: {{ hex2rgba(get_setting('base_color', '#e62d04'), 0.15) }};

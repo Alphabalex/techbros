@@ -97,14 +97,21 @@ class ReviewController extends Controller
         $review = Review::findOrFail($request->id);
         $review->status = $request->status;
         $review->save();
-        $product = Product::findOrFail($review->product->id);
-        if(count(Review::where('product_id', $product->id)->where('status', 1)->get()) > 0){
-            $product->rating = Review::where('product_id', $product->id)->where('status', 1)->sum('rating')/count(Review::where('product_id', $product->id)->where('status', 1)->get());
+
+        $product = Product::find($review->product->id);
+        if($product){
+            $product->rating = $product->reviews()->avg('rating');
+            $product->save();
+
+            $shop = $product->shop;
+            if($shop){
+                $shop->rating = $shop->reviews()->avg('rating');
+                $shop->save();
+            }
         }
-        else {
-            $product->rating = 0;
-        }
-        $product->save();
+        
+        cache_clear();
+
         return 1;
     }
 }

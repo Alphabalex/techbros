@@ -51,7 +51,7 @@
                                         @can('edit_brands')
                                             <a class="btn btn-soft-primary btn-icon btn-circle btn-sm"
                                                 href="{{ route('brands.edit', ['id' => $brand->id, 'lang' => env('DEFAULT_LANGUAGE')]) }}"
-                                                title="{{ translate('Edit') }}" title="{{ translate('Edit') }}">
+                                                title="{{ translate('Edit') }}">
                                                 <i class="las la-edit"></i>
                                             </a>
                                         @endcan

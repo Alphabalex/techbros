@@ -40,9 +40,9 @@ class ZoneController extends Controller
     {
         $zone = new Zone;
         $zone->name = $request->name;
-        $zone->cities = json_encode($request->cities);
-        $zone->standard_delivery_cost = $request->standard_delivery_cost;
-        $zone->express_delivery_cost = $request->express_delivery_cost;
+        $zone->cities = $request->cities ? json_encode($request->cities) : '[]';
+        $zone->standard_delivery_cost = $request->standard_delivery_cost ?? 0;
+        $zone->express_delivery_cost = $request->express_delivery_cost ?? 0;
         $zone->save();
 
         foreach($request->cities as $city_id){
@@ -92,16 +92,9 @@ class ZoneController extends Controller
     {
         $zone = Zone::findOrFail($id);
         $zone->name = $request->name;
-        $zone->standard_delivery_cost = $request->standard_delivery_cost;
-        $zone->express_delivery_cost = $request->express_delivery_cost;
-
-        foreach(json_decode($zone->cities) as $city_id){
-            $city = City::find($city_id);
-            $city->zone_id = null;
-            $city->save();
-        }
-
-        $zone->cities = json_encode($request->cities);
+        $zone->cities = $request->cities ? json_encode($request->cities) : '[]';
+        $zone->standard_delivery_cost = $request->standard_delivery_cost ?? 0;
+        $zone->express_delivery_cost = $request->express_delivery_cost ?? 0;
 
         foreach($request->cities as $city_id){
             $city = City::find($city_id);
@@ -126,8 +119,10 @@ class ZoneController extends Controller
         $zone = Zone::findOrFail($id);
         foreach(json_decode($zone->cities) as $city_id){
             $city = City::find($city_id);
-            $city->zone_id = null;
-            $city->save();
+            if($city){
+                $city->zone_id = null;
+                $city->save();
+            }
         }
         $zone->delete();
 

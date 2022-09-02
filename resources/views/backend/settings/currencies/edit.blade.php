@@ -31,7 +31,7 @@
         <div class="form-group row">
             <label class="col-sm-2 col-from-label" for="exchange_rate">{{ translate('Exchange Rate') }}</label>
             <div class="col-sm-10">
-                <input type="number" step="0.01" min="0" placeholder="{{ translate('Exchange Rate') }}"
+                <input type="number" step="0.00001" min="0" placeholder="{{ translate('Exchange Rate') }}"
                     id="exchange_rate" name="exchange_rate" value="{{ $currency->exchange_rate }}"
                     class="form-control" required>
             </div>

@@ -19,4 +19,9 @@ class CategoryController extends Controller
     {
         return new CategoryCollection(Category::where('featured', 1)->get());
     }
+
+    public function first_level_categories()
+    {
+        return new CategoryCollection(Category::where('level', 0)->get());
+    }
 }

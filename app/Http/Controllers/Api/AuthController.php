@@ -1,8 +1,11 @@
-<?php /** @noinspection PhpUndefinedClassInspection */
+<?php
+
+/** @noinspection PhpUndefinedClassInspection */
 
 namespace App\Http\Controllers\Api;
 
 use App\Http\Resources\UserCollection;
+use App\Http\Services\SmsServices;
 use App\Mail\EmailManager;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Setting;
@@ -14,12 +17,23 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Notifications\EmailVerificationNotification;
 use Mail;
+Use Str;
 
 class AuthController extends Controller
 {
     public function signup(Request $request)
     {
-        $user = User::where('phone', $request->phone)->orWhere('email', $request->email)->withTrashed()->first();
+        
+        if(get_setting('customer_login_with') == 'email'){
+            $user = User::where('email', $request->email)->first();
+        }
+        elseif(get_setting('customer_login_with') == 'phone'){
+            $user = User::where('phone', $request->phone)->first();
+        }
+        else{
+            $user = User::where('phone', $request->phone)->orWhere('email', $request->email)->first();
+        }
+
         if ($user != null) {
             return response()->json([
                 'success' => false,
@@ -42,28 +56,33 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
             'verification_code' => rand(100000, 999999)
         ]);
-
-        if(get_setting('email_verification') != 1){
-            $user->email_verified_at = date('Y-m-d H:m:s');
-        }
-        else {
-            $user->notify(new EmailVerificationNotification());
-        }
         $user->save();
 
-        if($request->has('temp_user_id') && $request->temp_user_id != null){
+        if ($request->has('temp_user_id') && $request->temp_user_id != null) {
             Cart::where('temp_user_id', $request->temp_user_id)->update(
-            [
-                'user_id' => $user->id,
-                'temp_user_id' => null
-            ]);
+                [
+                    'user_id' => $user->id,
+                    'temp_user_id' => null
+                ]
+            );
         }
 
-        if(get_setting('email_verification') == 1){
-            return response()->json([
-                'success' => true,
-                'message' => translate('A verification code has been sent to your email.')
-            ], 200);
+        if(get_setting('customer_otp_with') != 'disabled'){
+            if (get_setting('customer_login_with') == 'email' || (get_setting('customer_login_with') == 'email_phone' && get_setting('customer_otp_with') == 'email')) {
+                $user->notify(new EmailVerificationNotification());
+                return response()->json([
+                    'success' => true,
+                    'verified'=> false,
+                    'message' => translate('A verification code has been sent to your email.')
+                ], 200);
+            } else {
+                (new SmsServices)->phoneVerificationSms($user->phone, $user->verification_code);
+                return response()->json([
+                    'success' => true,
+                    'verified'=> false,
+                    'message' => translate('A verification code has been sent to your phone.')
+                ], 200);
+            }
         }
 
         $tokenResult = $user->createToken('Personal Access Token');
@@ -73,38 +92,67 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'required|string',
+            'email' => 'required_without:phone',
+            'phone' => 'required_without:email',
             'password' => 'required|string',
         ]);
-        $credentials = request(['email', 'password']);
-        if (!Auth::attempt($credentials))
+
+        $phone = Str::replace(' ', '', $request->phone);
+        if($request->email){
+            $user = User::where('email', $request->email)->first();
+        }
+        elseif($request->phone){
+            $user = User::where('phone', $phone)->first();
+        }
+        else{
+            $user = null;
+        }
+        if(!$user || !Hash::check($request->password, $user->password)){
             return response()->json([
                 'success' => false,
                 'message' => translate('Invalid login information')
             ], 200);
-
-        $user = $request->user();
-        
-        if($request->has('temp_user_id') && $request->temp_user_id != null){
-            Cart::where('temp_user_id', $request->temp_user_id)->update(
-            [
-                'user_id' => $user->id,
-                'temp_user_id' => null
-            ]);
         }
-        
-        if($user->user_type == 'customer'){
-            if(get_setting('email_verification') == 1 && $user->email_verified_at == null){
-                return response()->json([
-                    'success' => true,
-                    'verified' => false,
-                    'message' => translate('Please verify your account')
-                ], 200);
+
+        if ($user->user_type == 'customer') {
+
+            if ($request->has('temp_user_id') && $request->temp_user_id != null) {
+                Cart::where('temp_user_id', $request->temp_user_id)->update(
+                    [
+                        'user_id' => $user->id,
+                        'temp_user_id' => null
+                    ]
+                );
             }
+            
+            if(get_setting('customer_otp_with') != 'disabled'){
+                if (get_setting('customer_login_with') == 'email' || (get_setting('customer_login_with') == 'email_phone' && get_setting('customer_otp_with') == 'email') && $user->email_verified_at == null) {
+
+                    $user->notify(new EmailVerificationNotification());
+                    return response()->json([
+                        'success' => true,
+                        'verified'=> false,
+                        'email_verified' => false,
+                        'message' => translate('Please verify your account')
+                    ], 200);
+
+                }elseif((get_setting('customer_login_with') == 'phone' || (get_setting('customer_login_with') == 'email_phone' && get_setting('customer_otp_with') == 'phone')) && $user->phone_verified_at == null){
+
+                    (new SmsServices)->phoneVerificationSms($user->phone, $user->verification_code);
+                    return response()->json([
+                        'success' => true,
+                        'verified'=> false,
+                        'phone_verified' => false,
+                        'message' => translate('Please verify your account')
+                    ], 200);
+                    
+                }
+            }
+
             $tokenResult = $user->createToken('Personal Access Token');
             return $this->loginSuccess($tokenResult, $user);
-        }
-        else{
+
+        } else {
             return response()->json([
                 'success' => false,
                 'message' => translate('Only customers can login here')
@@ -112,53 +160,80 @@ class AuthController extends Controller
         }
     }
 
-    public function verify(Request $request){
-        $user = User::where('email', $request->email)->first();
-        if(!$user){
+    public function verify(Request $request)
+    {
+        $phone = Str::replace(' ', '', $request->phone);
+        if(get_setting('customer_login_with') == 'email' || (get_setting('customer_login_with') == 'email_phone' && get_setting('customer_otp_with') == 'email')){
+            $user = User::where('email', $request->email)->first();
+        }
+        elseif(get_setting('customer_login_with') == 'phone' || (get_setting('customer_login_with') == 'email_phone' && get_setting('customer_otp_with') == 'phone')){
+            $user = User::where('phone', $phone)->first();
+        }
+        else{
+            $user = null;
+        }
+
+        if (!$user) {
             return response()->json([
                 'success' => false,
                 'message' => translate('No user found with this email address.')
             ], 200);
         }
-        if($user->verification_code != $request->code){
+        if ($user->verification_code != $request->code) {
             return response()->json([
                 'success' => false,
                 'message' => translate('Code does not match.')
             ], 200);
-        }else{
-            $user->email_verified_at = date('Y-m-d H:m:s');
+        } else {
+
+            if(get_setting('customer_login_with') == 'email' || (get_setting('customer_login_with') == 'email_phone' && get_setting('customer_otp_with') == 'email')){
+                $user->email_verified_at = date('Y-m-d H:m:s');
+            }else{
+                $user->phone_verified_at = date('Y-m-d H:m:s');
+            }
+
             $user->save();
             $tokenResult = $user->createToken('Personal Access Token');
             return $this->loginSuccess($tokenResult, $user);
         }
     }
 
-    public function resend_code(Request $request){
-        if (filter_var($request->email, FILTER_VALIDATE_EMAIL)) {
-
+    public function resend_code(Request $request)
+    {
+        $phone = Str::replace(' ', '', $request->phone);
+        if(get_setting('customer_login_with') == 'email' || (get_setting('customer_login_with') == 'email_phone' && get_setting('customer_otp_with') == 'email')){
             $user = User::where('email', $request->email)->first();
-            if ($user != null) {
-                $user->verification_code = rand(100000,999999);
-                $user->save();
-
-                $user->notify(new EmailVerificationNotification());
-
-                return response()->json([
-                    'success' => true,
-                    'message' => translate('A verification code has been sent to your email.')
-                ], 200);
-            }
-            else {
-                return response()->json([
-                    'success' => false,
-                    'message' => translate('No user found with this email address.')
-                ], 200);
-            }
+        }
+        elseif(get_setting('customer_login_with') == 'phone' || (get_setting('customer_login_with') == 'email_phone' && get_setting('customer_otp_with') == 'phone')){
+            $user = User::where('phone', $phone)->first();
         }
         else{
+            $user = null;
+        }
+
+        if (!$user) {
             return response()->json([
                 'success' => false,
-                'message' => translate('Invalid email address.')
+                'message' => translate('No user found with this email address.')
+            ], 200);
+        }
+
+        $user->verification_code = rand(100000, 999999);
+        $user->save();
+
+        if (get_setting('customer_login_with') == 'email' || (get_setting('customer_login_with') == 'email_phone' && get_setting('customer_otp_with') == 'email')) {
+            $user->notify(new EmailVerificationNotification());
+            return response()->json([
+                'success' => true,
+                'verified'=> false,
+                'message' => translate('A verification code has been sent to your email.')
+            ], 200);
+        } else {
+            (new SmsServices)->phoneVerificationSms($user->phone, $user->verification_code);
+            return response()->json([
+                'success' => true,
+                'verified'=> false,
+                'message' => translate('A verification code has been sent to your phone.')
             ], 200);
         }
     }
@@ -197,7 +272,9 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'phone' => $user->phone,
                 'avatar' => api_asset($user->avatar),
-            ]
+            ],
+            'message' => translate('Successfully logged in'),
+            'followed_shops' => $user->followed_shops->pluck('id')->toArray()
         ]);
     }
 }
