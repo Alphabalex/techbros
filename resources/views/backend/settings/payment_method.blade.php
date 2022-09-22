@@ -210,11 +210,11 @@
             </div>
         </div>
 
-        {{-- PayStack --}}
+        {{-- Razorpay --}}
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0 h6 ">{{ translate('PayStack Credential') }}</h5>
+                    <h5 class="mb-0 h6 ">{{ translate('Razorpay Credential') }}</h5>
                 </div>
                 <div class="card-body">
                     <form class="form-horizontal" action="{{ route('payment_method.update') }}" method="POST">
@@ -226,43 +226,27 @@
                             </div>
                             <div class="col-md-8">
                                 <label class="aiz-switch aiz-switch-success mb-0">
-                                    <input type="checkbox" onchange="updateSettings(this, 'paystack_payment')"
-                                        @if (get_setting('paystack_payment') == 1) checked @endif>
+                                    <input type="checkbox" onchange="updateSettings(this, 'razorpay_payment')" @if (get_setting('razorpay_payment') == 1) checked @endif>
                                     <span class="slider round"></span>
                                 </label>
                             </div>
                         </div>
                         <div class="form-group row">
-                            <input type="hidden" name="types[]" value="PAYSTACK_PUBLIC_KEY">
-                            <div class="col-md-4">
-                                <label class="col-from-label">{{ translate('PUBLIC KEY') }}</label>
+                            <input type="hidden" name="types[]" value="RAZOR_KEY">
+                            <div class="col-lg-4">
+                                <label class="col-from-label">{{ translate('Razorpay Key') }}</label>
                             </div>
-                            <div class="col-md-8">
-                                <input type="text" class="form-control" name="PAYSTACK_PUBLIC_KEY"
-                                    value="{{ env('PAYSTACK_PUBLIC_KEY') }}"
-                                    placeholder="{{ translate('PUBLIC KEY') }}" required>
+                            <div class="col-lg-6">
+                                <input type="text" class="form-control" name="RAZOR_KEY" value="{{ env('RAZOR_KEY') }}" placeholder="Key">
                             </div>
                         </div>
                         <div class="form-group row">
-                            <input type="hidden" name="types[]" value="PAYSTACK_SECRET_KEY">
-                            <div class="col-md-4">
-                                <label class="col-from-label">{{ translate('SECRET KEY') }}</label>
+                            <input type="hidden" name="types[]" value="RAZOR_SECRET">
+                            <div class="col-lg-4">
+                                <label class="col-from-label">{{ translate('Razorpay Secret') }}</label>
                             </div>
-                            <div class="col-md-8">
-                                <input type="text" class="form-control" name="PAYSTACK_SECRET_KEY"
-                                    value="{{ env('PAYSTACK_SECRET_KEY') }}"
-                                    placeholder="{{ translate('SECRET KEY') }}" required>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <input type="hidden" name="types[]" value="MERCHANT_EMAIL">
-                            <div class="col-md-4">
-                                <label class="col-from-label">{{ translate('MERCHANT EMAIL') }}</label>
-                            </div>
-                            <div class="col-md-8">
-                                <input type="text" class="form-control" name="MERCHANT_EMAIL"
-                                    value="{{ env('MERCHANT_EMAIL') }}"
-                                    placeholder="{{ translate('MERCHANT EMAIL') }}" required>
+                            <div class="col-lg-6">
+                                <input type="text" class="form-control" name="RAZOR_SECRET" value="{{ env('RAZOR_SECRET') }}" placeholder="secret">
                             </div>
                         </div>
                         <div class="form-group mb-0 text-right">
@@ -272,6 +256,8 @@
                 </div>
             </div>
         </div>
+
+        {{-- Flutterwave --}}
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
@@ -344,6 +330,264 @@
                 </div>
             </div>
         </div>
+
+        {{-- PayStack --}}
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0 h6 ">{{ translate('PayStack Credential') }}</h5>
+                </div>
+                <div class="card-body">
+                    <form class="form-horizontal" action="{{ route('payment_method.update') }}" method="POST">
+                        @csrf
+
+                        <div class="form-group row">
+                            <div class="col-md-4">
+                                <label class="col-from-label">{{ translate('Activation') }}</label>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="aiz-switch aiz-switch-success mb-0">
+                                    <input type="checkbox" onchange="updateSettings(this, 'paystack_payment')"
+                                        @if (get_setting('paystack_payment') == 1) checked @endif>
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <input type="hidden" name="types[]" value="PAYSTACK_PUBLIC_KEY">
+                            <div class="col-md-4">
+                                <label class="col-from-label">{{ translate('PUBLIC KEY') }}</label>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" name="PAYSTACK_PUBLIC_KEY"
+                                    value="{{ env('PAYSTACK_PUBLIC_KEY') }}"
+                                    placeholder="{{ translate('PUBLIC KEY') }}" required>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <input type="hidden" name="types[]" value="PAYSTACK_SECRET_KEY">
+                            <div class="col-md-4">
+                                <label class="col-from-label">{{ translate('SECRET KEY') }}</label>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" name="PAYSTACK_SECRET_KEY"
+                                    value="{{ env('PAYSTACK_SECRET_KEY') }}"
+                                    placeholder="{{ translate('SECRET KEY') }}" required>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <input type="hidden" name="types[]" value="MERCHANT_EMAIL">
+                            <div class="col-md-4">
+                                <label class="col-from-label">{{ translate('MERCHANT EMAIL') }}</label>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" name="MERCHANT_EMAIL"
+                                    value="{{ env('MERCHANT_EMAIL') }}"
+                                    placeholder="{{ translate('MERCHANT EMAIL') }}" required>
+                            </div>
+                        </div>
+                        <div class="form-group mb-0 text-right">
+                            <button type="submit" class="btn btn-sm btn-primary">{{ translate('Save') }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        {{-- Authorize Net --}}
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0 h6 ">{{ translate('Authorize Net') }}</h5>
+                </div>
+                <div class="card-body">
+                    <form class="form-horizontal" action="{{ route('payment_method.update') }}" method="POST">
+                        @csrf
+                        <div class="form-group row">
+                            <div class="col-md-4">
+                                <label class="col-from-label">{{ translate('Activation') }}</label>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="aiz-switch aiz-switch-success mb-0">
+                                    <input type="checkbox" onchange="updateSettings(this, 'authorizenet_payment')"
+                                        @if (get_setting('authorizenet_payment') == 1) checked @endif>
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <input type="hidden" name="types[]" value="AUTHORIZE_NET_MERCHANT_LOGIN_ID">
+                            <div class="col-md-4">
+                                <label class="col-from-label">{{ translate('Merchant Login ID') }}</label>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" name="AUTHORIZE_NET_MERCHANT_LOGIN_ID"
+                                    value="{{ env('AUTHORIZE_NET_MERCHANT_LOGIN_ID') }}"
+                                    placeholder="{{ translate('Merchant Login ID') }}" required>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <input type="hidden" name="types[]" value="AUTHORIZE_NET_MERCHANT_TRANSACTION_KEY">
+                            <div class="col-md-4">
+                                <label class="col-from-label">{{ translate('Merchant Transaction Key') }}</label>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" name="AUTHORIZE_NET_MERCHANT_TRANSACTION_KEY"
+                                    value="{{ env('AUTHORIZE_NET_MERCHANT_TRANSACTION_KEY') }}"
+                                    placeholder="{{ translate('Merchant Transaction Key') }}" required>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-4">
+                                <label class="col-from-label">{{ translate('Authorize Net Sandbox Mode') }}</label>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="aiz-switch aiz-switch-success mb-0">
+                                    <input value="1" name="authorizenet_sandbox" type="checkbox"
+                                        onchange="updateSettings(this, 'authorizenet_sandbox')" @if (get_setting('authorizenet_sandbox') == 1) checked @endif>
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group mb-0 text-right">
+                            <button type="submit" class="btn btn-sm btn-primary">{{ translate('Save') }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        {{-- Payfast --}}
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0 h6 ">{{ translate('Payfast Credential') }}</h5>
+                </div>
+                <div class="card-body">
+                    <form class="form-horizontal" action="{{ route('payment_method.update') }}" method="POST">
+                        @csrf
+                        <div class="form-group row">
+                            <div class="col-md-4">
+                                <label class="col-from-label">{{ translate('Activation') }}</label>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="aiz-switch aiz-switch-success mb-0">
+                                    <input type="checkbox" onchange="updateSettings(this, 'payfast_payment')"
+                                        @if (get_setting('payfast_payment') == 1) checked @endif>
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <input type="hidden" name="types[]" value="PAYFAST_MERCHANT_ID">
+                            <div class="col-md-4">
+                                <label class="col-from-label">{{ translate('Payfast Merchant ID') }}</label>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" name="PAYFAST_MERCHANT_ID"
+                                    value="{{ env('PAYFAST_MERCHANT_ID') }}"
+                                    placeholder="{{ translate('Payfast Merchant ID') }}" required>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <input type="hidden" name="types[]" value="PAYFAST_MERCHANT_KEY">
+                            <div class="col-md-4">
+                                <label class="col-from-label">{{ translate('Payfast Merchant Key') }}</label>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" name="PAYFAST_MERCHANT_KEY"
+                                    value="{{ env('PAYFAST_MERCHANT_KEY') }}"
+                                    placeholder="{{ translate('Payfast Merchant Key') }}" required>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-4">
+                                <label class="col-from-label">{{ translate('Payfast Sandbox Mode') }}</label>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="aiz-switch aiz-switch-success mb-0">
+                                    <input value="1" name="payfast_sandbox" type="checkbox"
+                                        onchange="updateSettings(this, 'payfast_sandbox')" @if (get_setting('payfast_sandbox') == 1) checked @endif>
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group mb-0 text-right">
+                            <button type="submit" class="btn btn-sm btn-primary">{{ translate('Save') }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        {{-- mercadopago --}}
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0 h6 ">{{ translate('Mercadopago Credential') }}</h5>
+                </div>
+                <div class="card-body">
+                    <form class="form-horizontal" action="{{ route('payment_method.update') }}" method="POST">
+                        @csrf
+                        <div class="form-group row">
+                            <div class="col-md-4">
+                                <label class="col-from-label">{{ translate('Activation') }}</label>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="aiz-switch aiz-switch-success mb-0">
+                                    <input type="checkbox" onchange="updateSettings(this, 'mercadopago_payment')"
+                                        @if (get_setting('mercadopago_payment') == 1) checked @endif>
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <input type="hidden" name="types[]" value="MERCADOPAGO_KEY">
+                            <div class="col-md-4">
+                                <label class="col-from-label">{{ translate('Mercadopago Key') }}</label>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" name="MERCADOPAGO_KEY"
+                                    value="{{ env('MERCADOPAGO_KEY') }}"
+                                    placeholder="{{ translate('Mercadopago Key') }}" required>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <input type="hidden" name="types[]" value="MERCADOPAGO_ACCESS">
+                            <div class="col-md-4">
+                                <label class="col-from-label">{{ translate('Mercadopago Access') }}</label>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" name="MERCADOPAGO_ACCESS"
+                                    value="{{ env('MERCADOPAGO_ACCESS') }}"
+                                    placeholder="{{ translate('Mercadopago Access') }}" required>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <input type="hidden" name="types[]" value="MERCADOPAGO_CURRENCY">
+                            <div class="col-md-4">
+                                <label class="col-from-label">{{ translate('Mercadopago Currency') }}</label>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" name="MERCADOPAGO_CURRENCY"
+                                    value="{{ env('MERCADOPAGO_CURRENCY') }}"
+                                    placeholder="{{ translate('Mercadopago Currency') }}" required>
+                                <br>
+                                <div class="alert alert-primary" role="alert">
+                                    Currency must be <b>es-AR</b> or <b>es-CL</b> or <b>es-CO</b> or <b>es-MX</b> or <b>es-VE</b> or <b>es-UY</b> or <b>es-PE</b> or <b>pt-BR</b><br>
+                                    If kept empty, <b>en-US</b> will be used automatically
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group mb-0 text-right">
+                            <button type="submit" class="btn btn-sm btn-primary">{{ translate('Save') }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        {{-- Paytm --}}
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
@@ -432,52 +676,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0 h6 ">{{ translate('Razorpay Credential') }}</h5>
-                </div>
-                <div class="card-body">
-                    <form class="form-horizontal" action="{{ route('payment_method.update') }}" method="POST">
-                        @csrf
-
-                        <div class="form-group row">
-                            <div class="col-md-4">
-                                <label class="col-from-label">{{ translate('Activation') }}</label>
-                            </div>
-                            <div class="col-md-8">
-                                <label class="aiz-switch aiz-switch-success mb-0">
-                                    <input type="checkbox" onchange="updateSettings(this, 'razorpay_payment')" @if (get_setting('razorpay_payment') == 1) checked @endif>
-                                    <span class="slider round"></span>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <input type="hidden" name="types[]" value="RAZOR_KEY">
-                            <div class="col-lg-4">
-                                <label class="col-from-label">{{ translate('Razorpay Key') }}</label>
-                            </div>
-                            <div class="col-lg-6">
-                                <input type="text" class="form-control" name="RAZOR_KEY" value="{{ env('RAZOR_KEY') }}" placeholder="Key">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <input type="hidden" name="types[]" value="RAZOR_SECRET">
-                            <div class="col-lg-4">
-                                <label class="col-from-label">{{ translate('Razorpay Secret') }}</label>
-                            </div>
-                            <div class="col-lg-6">
-                                <input type="text" class="form-control" name="RAZOR_SECRET" value="{{ env('RAZOR_SECRET') }}" placeholder="secret">
-                            </div>
-                        </div>
-                        <div class="form-group mb-0 text-right">
-                            <button type="submit" class="btn btn-sm btn-primary">{{ translate('Save') }}</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
+    
     </div>
 
 @endsection

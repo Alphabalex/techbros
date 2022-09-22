@@ -80,9 +80,10 @@
                 <h5 class="modal-title" id="exampleModalLabel">{{ translate('Purchase Your Package') }}</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form class="" id="package_payment_form" action="{{ route('seller.packages.purchase') }}" method="post">
+            <form class="" id="package_payment_form" action="{{ route('seller.packages.purchase') }}" method="post" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="seller_package_id" value="">
+                <input type="hidden" name="payment_type" value="seller_package_payment">
                 <div class="modal-body">
                     <div class="mb-2 fs-15">
                         <label>{{translate('Select a Payment Method')}}</label>
@@ -165,7 +166,102 @@
                                 </label>
                             </div>
                         @endif
+
+                        @if (get_setting('payfast_payment') == 1)
+                            <div class="col-6 col-md-4">
+                                <label class="aiz-megabox d-block">
+                                    <input type="radio" name="payment_option" value="payfast" required>
+                                    <span class="d-block p-3 aiz-megabox-elem text-center">
+                                        <img src="{{ static_asset('assets/img/cards/payfast.png') }}" class="img-fluid w-100">
+                                        <span class="fw-700 fs-13 mt-2 d-inline-block">{{translate('Payfast')}}</span>
+                                    </span>
+                                </label>
+                            </div>
+                        @endif
+                        
+                        @if (get_setting('authorizenet_payment') == 1)
+                            <div class="col-6 col-md-4">
+                                <label class="aiz-megabox d-block">
+                                    <input type="radio" name="payment_option" value="authorizenet" required>
+                                    <span class="d-block p-3 aiz-megabox-elem text-center">
+                                        <img src="{{ static_asset('assets/img/cards/authorizenet.png') }}" class="img-fluid w-100">
+                                        <span class="fw-700 fs-13 mt-2 d-inline-block">{{translate('Authorize Net')}}</span>
+                                    </span>
+                                </label>
+                            </div>
+                        @endif
+                        
+                        @if (get_setting('mercadopago_payment') == 1)
+                            <div class="col-6 col-md-4">
+                                <label class="aiz-megabox d-block">
+                                    <input type="radio" name="payment_option" value="mercadopago" required>
+                                    <span class="d-block p-3 aiz-megabox-elem text-center">
+                                        <img src="{{ static_asset('assets/img/cards/mercadopago.png') }}" class="img-fluid w-100">
+                                        <span class="fw-700 fs-13 mt-2 d-inline-block">{{translate('Mercadopago')}}</span>
+                                    </span>
+                                </label>
+                            </div>
+                        @endif
+
+
+                         @if (get_setting('offline_payment') == 1)
+                            @foreach (\App\Models\ManualPaymentMethod::all() as $manualPayment)
+                                <div class="col-6 col-md-4">
+                                    <label class="aiz-megabox d-block">
+                                        <input type="radio" name="payment_option" value="offline_payment-{{ $manualPayment->id }}" onchange="toggleManualPaymentData({{ $manualPayment->id }})"  required>
+                                        <span class="d-block p-3 aiz-megabox-elem text-center">
+                                            <img src="{{ uploaded_asset($manualPayment->photo) }}" class="img-fluid w-100">
+                                            <span class="fw-700 fs-13 mt-2 d-inline-block">{{ $manualPayment->heading }}</span>
+                                        </span>
+                                    </label>
+                                </div>
+                            @endforeach
+                        @endif
                     </div>
+
+                    
+                    {{-- Inputs for authorize net payment --}}
+                    <div class="mt-4 card card-body d-none authorizenet_input">
+                    
+                    </div>
+                    {{-- Inputs for authorize net payment --}}
+
+
+                    {{-- form for offline payment --}}
+                    <div class="offline_payment_form mt-4 card card-body d-none">
+
+                        <div class="row">
+                            @foreach (\App\Models\ManualPaymentMethod::all() as $method)
+                                <div id="manual_payment_info_{{ $method->id }}"
+                                    class="d-none">
+
+                                    <div class="px-2">@php echo $method->description @endphp</div>
+
+                                    @if ($method->bank_info != null)
+                                        <ul class="px-4">
+                                            @foreach (json_decode($method->bank_info) as $key => $info)
+                                                <li>{{ translate('Bank Name') }} -
+                                                    {{ $info->bank_name }},
+                                                    {{ translate('Account Name') }} -
+                                                    {{ $info->account_name }},
+                                                    {{ translate('Account Number') }} -
+                                                    {{ $info->account_number }},
+                                                    {{ translate('Routing Number') }} -
+                                                    {{ $info->routing_number }}</li>
+                                            @endforeach
+                                        </ul>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                        
+                        <div class="offline_input">
+
+                        </div>
+                        
+                    </div> 
+                    {{-- form for offline payment --}}
+
                     <div class="form-group text-right mt-4">
                         <button type="button" class="btn btn-secondary transition-3d-hover mr-1" data-dismiss="modal">{{translate('cancel')}}</button>
                         <button type="submit" class="btn btn-primary transition-3d-hover mr-1">{{translate('Confirm')}}</button>
@@ -175,14 +271,59 @@
         </div>
     </div>
 </div>
-
-
 @endsection
 
 
 @section('script')
     <script type="text/javascript">
 
+        var offline_input = '<div class="row">'+
+                              '<label class="col-md-4 col-form-label">{{ translate('Transaction ID') }} <span class="text-danger text-danger">*</span></label>'+
+                              '<div class="col-md-8">'+
+                              '<input type="text" name="transactionId" class="form-control mb-3" placeholder="{{ translate('Transaction ID') }}" required>'+
+                              '</div>'+
+                              '</div>'+ 
+                              '<div class="row">'+
+                              '<label class="col-md-4 col-form-label">{{ translate('Receipt') }}</label>'+
+                              '<div class="col-md-8">'+
+                              '<input type="file" name="receipt" class="form-control-file mb-3" placeholder="{{ translate('Receipt') }}">'+
+                              '</div>'+
+                              '</div>'
+
+        // Authorize Net Inputs
+        const months = ["Jan", "Feb", "Mar", "Apr", "May",  "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        let monthOptions = '';
+        months.forEach((month, index) => {
+            monthOptions = monthOptions + '<option value="'+ (index+1) +'">'+ month +'</option>'
+        })
+
+        let yearOptions = '';
+        let presentYear =  new Date().getFullYear();
+        let fifteenPlus = new Date().getFullYear() + 15;
+        for (let i = presentYear; i < fifteenPlus; i++) {
+            yearOptions = yearOptions + '<option value="'+ i +'">'+ i +'</option>'
+        }
+                             
+        var authorizenet_input = '<div class="row">'+
+                            '<div class="form-group col-md-8" id="card-number-field">'+
+                                '<label for="cardNumber">{{ translate('Card Number') }}</label>'+
+                                '<input type="text" class="form-control" id="cardNumber" name="card_number" required>'+
+                                '<span id="card-error" class="error text-red">{{ translate('Please enter valid card number') }}</span>'+
+                            '</div>'+
+                            '<div class="form-group CVV col-md-4">'+
+                                '<label for="cvv">{{ translate('CVV') }}</label>'+
+                                '<input type="number" class="form-control" id="cvv" name="cvv" required>'+
+                                '<span id="cvv-error" class="error text-red">{{ translate('Please enter cvv') }}</span>'+
+                            '</div>'+
+                        '</div> '+ 
+                        '<div class="row">'+
+                            '<div class="form-group col-md-6" id="expiration-date">'+
+                                '<label>{{ translate("Expiration Date") }}</label><br/>'+
+                                '<select class="form-control" id="expiration-month" name="expiration_month" style="float: left; width: 100px; margin-right: 10px;">'+monthOptions+'</select>'+
+                                '<select class="form-control" id="expiration-year" name="expiration_year"  style="float: left; width: 100px;">'+yearOptions+'</select>'+
+                            '</div> '+   
+                        '</div>';
+        
         function select_payment_method_modal(id){
             $('input[name=seller_package_id]').val(id);
             $('#select_payment_method_modal').modal('show');
@@ -193,5 +334,36 @@
             $('#package_payment_form').submit();
         }
 
+        $('input[name=payment_option]').bind('input', function() { 
+            var html = '';
+            if($(this).val().includes('offline_payment')){
+                html+= offline_input;
+                $('.offline_input').html(html);
+                $('.offline_payment_form').removeClass('d-none');
+                $('.authorizenet_input').html('');
+                $('.authorizenet_input').addClass('d-none');
+            }
+            else if($(this).val().includes('authorizenet')){
+                html+= authorizenet_input;
+                $('.authorizenet_input').html(html);
+                $('.authorizenet_input').removeClass('d-none');
+
+                $('.offline_input').html('');
+                $('.offline_payment_form').addClass('d-none');
+            }
+            else{
+                $('.offline_input').html(html);
+                $('.offline_payment_form').addClass('d-none');
+                $('.authorizenet_input').html('');
+                $('.authorizenet_input').addClass('d-none');
+            }
+        });
+
+        function toggleManualPaymentData(id) {
+            if (typeof id != 'undefined') {
+                $('#manual_payment_info_' + id).removeClass('d-none'); 
+                $('#manual_payment_info_' + id).siblings().addClass('d-none'); 
+            }
+        }
     </script>
 @endsection

@@ -15,7 +15,6 @@ class PaymentController extends Controller
 {
 
     public function payment_initialize(Request $request, $gateway){
-        
         session()->put('redirect_to', $request->redirect_to);
         session()->put('amount', $request->amount);
         session()->put('payment_method', $request->payment_method);
@@ -26,7 +25,13 @@ class PaymentController extends Controller
         session()->put('transactionId', $request->transactionId ?? null);
         session()->put('receipt', null); 
         session()->put('receiptFile', null); 
-        
+
+        // Authorize Net
+        session()->put('card_number', $request->card_number);
+        session()->put('cvv', $request->cvv);
+        session()->put('expiration_month', $request->expiration_month);
+        session()->put('expiration_year', $request->expiration_year);
+
         if ($request->hasFile('receipt')) {
             if($request->payment_type == "seller_package_payment"){ 
                 session()->put('receiptFile', $request->file('receipt')->store('uploads/offline_payments'));
@@ -56,6 +61,15 @@ class PaymentController extends Controller
         }
         elseif ($gateway == 'razorpay') {
             return ( new RazorpayPaymentController )->index();
+        }
+        elseif ($gateway == 'payfast') {
+            return ( new PayfastPaymentController )->index();
+        }
+        elseif ($gateway == 'authorizenet') {
+            return ( new AuthorizenetPaymentController )->index();
+        }
+        elseif ($gateway == 'mercadopago') {
+            return ( new MercadopagoPaymentController )->index();
         }
         elseif (strpos($gateway, 'offline_payment') !== true) { 
             return ( new ManualPaymentController )->index();

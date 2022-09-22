@@ -18,7 +18,7 @@
                 </div>
                 <div class="col-md-3 ml-auto mr-0 mb-3">
                     <label>{{translate('Payment Status')}}</label>
-                    <select class="form-control aiz-selectpicker" id="update_payment_status" data-minimum-results-for-search="Infinity" data-selected="{{ $order->payment_status }}">
+                    <select class="form-control aiz-selectpicker" id="update_payment_status" data-minimum-results-for-search="Infinity" data-selected="{{ $order->payment_status }}" @if($order->payment_status == 'paid' || $order->delivery_status == 'delivered' || $order->delivery_status == 'cancelled') disabled @endif>
                         <option value="paid">{{translate('Paid')}}</option>
                         <option value="unpaid">{{translate('Unpaid')}}</option>
                     </select>
@@ -82,6 +82,33 @@
                             <td class="">{{translate('Payment method')}}</td>
                             <td class="text-right fw-700">{{ ucfirst(str_replace('_', ' ', $order->payment_type)) }}</td>
                         </tr>
+
+                        @if ($order->payment_type == "offline_payment")
+                            @php
+                                $manual_payment_data = json_decode($order->manual_payment_data);
+                            @endphp
+                            <tr>
+                                <td class="">{{ translate('Transaction ID') }}:</td>
+                                <td class="text-right fw-700">
+                                    {{ $manual_payment_data->transactionId}}</td>
+                            </tr>
+
+                            <tr>
+                                <td class="">{{ translate('Paid Via') }}:</td>
+                                <td class="text-right fw-700">
+                                    {{ $manual_payment_data->payment_method}}</td>
+                            </tr>
+
+                            @if ($manual_payment_data->reciept)
+                                <tr>
+                                    <td class="">{{ translate('Receipt') }}:</td>
+                                    <td class="text-right fw-700">
+                                        <a href="{{ my_asset($manual_payment_data->reciept) }}" target="_blank" rel="noopener noreferrer">{{ translate('Download') }}
+                                        </a>
+                                    </td>
+                                </tr>
+                            @endif 
+                        @endif
                     </tbody>
                 </table>
                 </div>
@@ -114,8 +141,8 @@
                                         <div>
                                             @foreach ($orderDetail->variation->combinations as $combination)
                                             <span class="mr-2">
-                                                <span class="opacity-50">{{ $combination->attribute->name }}</span>:
-                                                {{ $combination->attribute_value->name }}
+                                                <span class="opacity-50">{{ optional($combination->attribute)->name }}</span>:
+                                                {{ optional($combination->attribute_value)->name }}
                                             </span>
                                             @endforeach
                                         </div>

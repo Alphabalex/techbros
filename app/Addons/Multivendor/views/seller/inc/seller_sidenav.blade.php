@@ -31,6 +31,21 @@
                     </a>
                 </li>
 
+                @if (get_setting('pos_activation_for_seller') == 1)
+                     <li class="aiz-side-nav-item">
+                        <a href="{{route('point-of-sales.seller_index')}}" class="aiz-side-nav-link {{ areActiveRoutes(['point-of-sales.seller_index']) }}">
+                            <svg id="Group_22661" data-name="Group 22661" xmlns="http://www.w3.org/2000/svg" width="16" height="18.563" viewBox="0 0 16 18.563">
+                                <path id="Path_10" data-name="Path 10" d="M12.041,7H3.42A1.189,1.189,0,0,0,2.26,8.16V20.285A1.2,1.2,0,0,0,3.42,21.5h8.621a1.2,1.2,0,0,0,1.2-1.2V8.16A1.189,1.189,0,0,0,12.041,7ZM5.369,19.6h-1.1V18.5h1.1Zm0-2.732h-1.1v-1.1h1.1Zm0-2.732h-1.1v-1.1h1.1ZM8.27,19.6H7.179V18.5H8.287Zm0-2.732H7.179v-1.1H8.287Zm0-2.732H7.179v-1.1H8.287Zm2.9,5.465h-1.1V18.5h1.1Zm0-2.732h-1.1v-1.1h1.1Zm0-2.732h-1.1v-1.1h1.1Zm.377-3.481a.2.2,0,0,1-.191.2H4.087a.2.2,0,0,1-.191-.2V9.083a.191.191,0,0,1,.191-.191h7.3a.191.191,0,0,1,.191.191Zm5.906-1.682h-.261V19.519h.29a.777.777,0,0,0,.777-.777V9.756a.777.777,0,0,0-.806-.783Z" transform="translate(-2.26 -2.939)" fill="#707070"/>
+                                <rect id="Rectangle_10" data-name="Rectangle 10" width="1.7" height="10.552" transform="translate(11.516 6.033)" fill="#707070"/>
+                                <rect id="Rectangle_11" data-name="Rectangle 11" width="0.731" height="10.552" transform="translate(13.691 6.033)" fill="#707070"/>
+                                <path id="Path_11" data-name="Path 11" d="M14.971,1.038a1.033,1.033,0,0,0-.3-.737,1.056,1.056,0,0,0-.737-.3,1.038,1.038,0,0,0-1.056,1.038v.615h2.077Zm-2.553,0a.882.882,0,0,1,0-.168.789.789,0,0,1,0-.122h.012A.58.58,0,0,1,12.488.58a.5.5,0,0,1,.041-.116,1.387,1.387,0,0,1,.168-.3A.58.58,0,0,1,12.743.1l.081-.1h-4.7A.946.946,0,0,0,7.18.94V3.515H12.4Z" transform="translate(-4.326 0)" fill="#707070"/>
+                            </svg>
+                            <span class="aiz-side-nav-text">{{translate('POS Manager')}}</span>
+                        </a>
+                    </li>
+                @endif
+               
+
                 <li class="aiz-side-nav-item">
                     <a href="#" class="aiz-side-nav-link">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="16" viewBox="0 0 14 16">

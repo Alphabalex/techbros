@@ -26,7 +26,7 @@
                         <tr>
                             <td>{{ ($key+1) }}</td>
                             <td>{{ $package_payment_request->user->name}}</td>
-                            <td>{{ $package_payment_request->seller_package->name }}</td>
+                            <td>{{ optional($package_payment_request->seller_package)->name }}</td>
                             <td>{{ $package_payment_request->payment_method }}</td>
                             <td>{{ $package_payment_request->transaction_id }}</td>
                             <td>

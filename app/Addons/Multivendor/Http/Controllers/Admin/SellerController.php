@@ -127,20 +127,22 @@ class SellerController extends Controller
     {
         $user = User::findOrFail($id);
 
-        foreach ($user->products as $product) {
-            $product->product_translations()->delete();
-            $product->variations()->delete();
-            $product->variation_combinations()->delete();
-            $product->reviews()->delete();
-            $product->product_categories()->delete();
-            $product->carts()->delete();
-            $product->offers()->delete();
-            $product->wishlists()->delete();
-            $product->attributes()->delete();
-            $product->attribute_values()->delete();
-            $product->taxes()->delete();
+        if (!is_null($user->products)) {
+            foreach ($user->products as $product) {
+                $product->product_translations()->delete();
+                $product->variations()->delete();
+                $product->variation_combinations()->delete();
+                $product->reviews()->delete();
+                $product->product_categories()->delete();
+                $product->carts()->delete();
+                $product->offers()->delete();
+                $product->wishlists()->delete();
+                $product->attributes()->delete();
+                $product->attribute_values()->delete();
+                $product->taxes()->delete();
 
-            $product->delete();
+                $product->delete();
+            }
         }
 
         Shop::where('user_id', $user->id)->delete();

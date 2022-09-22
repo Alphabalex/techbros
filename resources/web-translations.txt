@@ -372,3 +372,7 @@ Read full blog
 Social Media
 Recent Blogs
 No Blog Found
+Please enter cvv
+Please enter valid card number
+Select Month
+Select Year

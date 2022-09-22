@@ -32,6 +32,7 @@ class SellerPackagePaymentController extends Controller
             $seller                                 = $package_payment->user->shop;
             $seller->seller_package_id              = $package_payment->seller_package_id;
             $seller->product_upload_limit           = $package_details->product_upload_limit;
+            $seller->commission                     = $package_details->commission;
             $seller->package_invalid_at             = date('Y-m-d', strtotime( $seller->package_invalid_at. ' +'. $package_details->duration .'days'));
             if($seller->save()){
                 flash(translate('Offline Seller Package Payment approved successfully.'))->success();

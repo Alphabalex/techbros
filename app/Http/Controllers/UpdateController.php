@@ -61,35 +61,53 @@ class UpdateController extends Controller
     }
 
     public function step1()
-    {   
-        if (get_setting('current_version') == '1.7') {
+    {
+        if (get_setting('current_version') == '1.8') {
+
+            $sql_path = base_path('sqlupdates/v19.sql');
+            DB::unprepared(file_get_contents($sql_path));
+
+            return redirect()->route('update.step2');
+        } elseif (get_setting('current_version') == '1.7') {
 
             $sql_path = base_path('sqlupdates/v18.sql');
             DB::unprepared(file_get_contents($sql_path));
-            
+
+
+            $sql_path = base_path('sqlupdates/v19.sql');
+            DB::unprepared(file_get_contents($sql_path));
+
             return redirect()->route('update.step2');
-        }elseif (get_setting('current_version') == '1.6') {
+        } elseif (get_setting('current_version') == '1.6') {
 
             $sql_path = base_path('sqlupdates/v17.sql');
             DB::unprepared(file_get_contents($sql_path));
-            
+
             $sql_path = base_path('sqlupdates/v18.sql');
             DB::unprepared(file_get_contents($sql_path));
 
+
+            $sql_path = base_path('sqlupdates/v19.sql');
+            DB::unprepared(file_get_contents($sql_path));
+
             return redirect()->route('update.step2');
-        }elseif (get_setting('current_version') == '1.5') {
+        } elseif (get_setting('current_version') == '1.5') {
 
             $sql_path = base_path('sqlupdates/v16.sql');
             DB::unprepared(file_get_contents($sql_path));
-            
+
             $sql_path = base_path('sqlupdates/v17.sql');
             DB::unprepared(file_get_contents($sql_path));
 
             $sql_path = base_path('sqlupdates/v18.sql');
             DB::unprepared(file_get_contents($sql_path));
-            
+
+
+            $sql_path = base_path('sqlupdates/v19.sql');
+            DB::unprepared(file_get_contents($sql_path));
+
             return redirect()->route('update.step2');
-        }elseif(get_setting('current_version') == '1.4') {
+        } elseif (get_setting('current_version') == '1.4') {
 
             $sql_path = base_path('sqlupdates/v15.sql');
             DB::unprepared(file_get_contents($sql_path));
@@ -102,10 +120,12 @@ class UpdateController extends Controller
 
             $sql_path = base_path('sqlupdates/v18.sql');
             DB::unprepared(file_get_contents($sql_path));
-            
+
+            $sql_path = base_path('sqlupdates/v19.sql');
+            DB::unprepared(file_get_contents($sql_path));
+
             return redirect()->route('update.step2');
-        }
-        elseif (get_setting('current_version') == '1.3') {
+        } elseif (get_setting('current_version') == '1.3') {
 
             $sql_path = base_path('sqlupdates/v14.sql');
             DB::unprepared(file_get_contents($sql_path));
@@ -118,18 +138,21 @@ class UpdateController extends Controller
 
             $sql_path = base_path('sqlupdates/v17.sql');
             DB::unprepared(file_get_contents($sql_path));
-            
+
             $sql_path = base_path('sqlupdates/v18.sql');
             DB::unprepared(file_get_contents($sql_path));
 
+
+            $sql_path = base_path('sqlupdates/v19.sql');
+            DB::unprepared(file_get_contents($sql_path));
+
             return redirect()->route('update.step2');
-        }
-        elseif (get_setting('current_version') == '1.2') {
+        } elseif (get_setting('current_version') == '1.2') {
 
             $sql_path = base_path('sqlupdates/v13.sql');
             DB::unprepared(file_get_contents($sql_path));
 
-            
+
             $sql_path = base_path('sqlupdates/v14.sql');
             DB::unprepared(file_get_contents($sql_path));
 
@@ -138,16 +161,20 @@ class UpdateController extends Controller
 
             $sql_path = base_path('sqlupdates/v16.sql');
             DB::unprepared(file_get_contents($sql_path));
-            
+
             $sql_path = base_path('sqlupdates/v17.sql');
             DB::unprepared(file_get_contents($sql_path));
 
             $sql_path = base_path('sqlupdates/v18.sql');
             DB::unprepared(file_get_contents($sql_path));
 
+
+            $sql_path = base_path('sqlupdates/v19.sql');
+            DB::unprepared(file_get_contents($sql_path));
+
+
             return redirect()->route('update.step2');
-        }
-        elseif (get_setting('current_version') == '1.1') {
+        } elseif (get_setting('current_version') == '1.1') {
 
             $sql_path = base_path('sqlupdates/v12.sql');
             DB::unprepared(file_get_contents($sql_path));
@@ -155,7 +182,7 @@ class UpdateController extends Controller
 
             $sql_path = base_path('sqlupdates/v13.sql');
             DB::unprepared(file_get_contents($sql_path));
-            
+
             $sql_path = base_path('sqlupdates/v14.sql');
             DB::unprepared(file_get_contents($sql_path));
 
@@ -164,16 +191,19 @@ class UpdateController extends Controller
 
             $sql_path = base_path('sqlupdates/v16.sql');
             DB::unprepared(file_get_contents($sql_path));
-            
+
             $sql_path = base_path('sqlupdates/v17.sql');
             DB::unprepared(file_get_contents($sql_path));
 
             $sql_path = base_path('sqlupdates/v18.sql');
             DB::unprepared(file_get_contents($sql_path));
 
+
+            $sql_path = base_path('sqlupdates/v19.sql');
+            DB::unprepared(file_get_contents($sql_path));
+
             return redirect()->route('update.step2');
-        }
-        elseif (get_setting('current_version') == '1.0.1') {
+        } elseif (get_setting('current_version') == '1.0.1') {
 
             $sql_path = base_path('sqlupdates/v11.sql');
             DB::unprepared(file_get_contents($sql_path));
@@ -182,7 +212,7 @@ class UpdateController extends Controller
             $sql_path = base_path('sqlupdates/v12.sql');
             DB::unprepared(file_get_contents($sql_path));
             $this->convertForRefund();
-            
+
             $sql_path = base_path('sqlupdates/v13.sql');
             DB::unprepared(file_get_contents($sql_path));
 
@@ -194,20 +224,23 @@ class UpdateController extends Controller
 
             $sql_path = base_path('sqlupdates/v16.sql');
             DB::unprepared(file_get_contents($sql_path));
-            
+
             $sql_path = base_path('sqlupdates/v17.sql');
             DB::unprepared(file_get_contents($sql_path));
 
             $sql_path = base_path('sqlupdates/v18.sql');
             DB::unprepared(file_get_contents($sql_path));
 
+
+            $sql_path = base_path('sqlupdates/v19.sql');
+            DB::unprepared(file_get_contents($sql_path));
+
             return redirect()->route('update.step2');
-        }
-        elseif (get_setting('current_version') == '1.0') {
+        } elseif (get_setting('current_version') == '1.0') {
 
             $sql_path = base_path('sqlupdates/v101.sql');
             DB::unprepared(file_get_contents($sql_path));
-            
+
             $sql_path = base_path('sqlupdates/v11.sql');
             DB::unprepared(file_get_contents($sql_path));
             $this->convertForMultivendor();
@@ -215,10 +248,10 @@ class UpdateController extends Controller
             $sql_path = base_path('sqlupdates/v12.sql');
             DB::unprepared(file_get_contents($sql_path));
             $this->convertForRefund();
-            
+
             $sql_path = base_path('sqlupdates/v13.sql');
             DB::unprepared(file_get_contents($sql_path));
-            
+
             $sql_path = base_path('sqlupdates/v14.sql');
             DB::unprepared(file_get_contents($sql_path));
 
@@ -227,16 +260,19 @@ class UpdateController extends Controller
 
             $sql_path = base_path('sqlupdates/v16.sql');
             DB::unprepared(file_get_contents($sql_path));
-            
+
             $sql_path = base_path('sqlupdates/v17.sql');
             DB::unprepared(file_get_contents($sql_path));
 
             $sql_path = base_path('sqlupdates/v18.sql');
             DB::unprepared(file_get_contents($sql_path));
 
+
+            $sql_path = base_path('sqlupdates/v19.sql');
+            DB::unprepared(file_get_contents($sql_path));
+
             return redirect()->route('update.step2');
-        }
-        else {
+        } else {
             cache_clear();
             $previousRouteServiceProvier = base_path('app/Providers/RouteServiceProvider.php');
             $newRouteServiceProvier      = base_path('app/Providers/RouteServiceProvider.txt');
@@ -334,22 +370,23 @@ class UpdateController extends Controller
         $admin_shop->brands()->sync(array_filter($brand_ids));
     }
 
-    public function convertForRefund(){
+    public function convertForRefund()
+    {
         // add admin, seller, percentage add in orders table
 
         $admin = User::where('user_type', 'admin')->first();
-        $orders = Order::with('orderDetails')->where('shop_id','!=', $admin->shop_id)->get();
+        $orders = Order::with('orderDetails')->where('shop_id', '!=', $admin->shop_id)->get();
         foreach ($orders as $order) {
             $commission_history = $order->commission_histories()->orderBy('created_at', 'DESC')->first();
 
-            if($commission_history){
+            if ($commission_history) {
                 $order_price = $order->grand_total - $order->shipping_cost - $order->orderDetails->sum(function ($t) {
                     return $t->tax * $t->quantity;
                 });
 
                 $order->admin_commission = $commission_history->admin_commission;
                 $order->seller_earning = $commission_history->seller_earning;
-                $order->commission_percentage = ($commission_history->admin_commission * 100)/$order_price;
+                $order->commission_percentage = ($commission_history->admin_commission * 100) / $order_price;
                 $order->save();
             }
         }

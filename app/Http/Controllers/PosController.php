@@ -30,7 +30,9 @@ class PosController extends Controller
 {
     public function __construct() {
         // Staff Permission Check
-        $this->middleware(['permission:pos_manager'])->only('index');
+        if(Auth::user() && Auth::user()->user_type != 'seller'){
+            $this->middleware(['permission:pos_manager'])->only('index');
+        }
         $this->middleware(['permission:pos_configuration'])->only('pos_activation');
     }
 

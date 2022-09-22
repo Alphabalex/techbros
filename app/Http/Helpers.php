@@ -528,7 +528,7 @@ if (!function_exists('calculate_seller_commision')) {
     {
 
         $shop = $order->shop;
-        if ($order->commission_calculated == 0 && $shop->user->user_type != 'admin' && $order->commission_percentage > 0) {
+        if ($order->commission_calculated == 0 && $shop->user->user_type != 'admin') {
 
             $order_price = $order->grand_total - $order->shipping_cost - $order->orderDetails->sum(function ($t) {
                 return $t->tax * $t->quantity;
@@ -565,6 +565,7 @@ if (!function_exists('calculate_seller_commision')) {
 
             $order->commission_calculated = 1;
             $order->save();
+            $shop->save();
         }
     }
 }

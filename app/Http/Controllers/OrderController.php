@@ -149,17 +149,14 @@ class OrderController extends Controller
 
     public function update_delivery_status(Request $request)
     {
-        $order = Order::findOrFail($request->order_id);
-        $order->delivery_status = $request->status;
-        $order->save();
-
+        $order = Order::findOrFail($request->order_id); 
         OrderUpdate::create([
             'order_id' => $order->id,
             'user_id' => auth()->user()->id,
             'note' => 'Order status updated to '.$request->status.'.',
         ]);
 
-        if ($request->status == 'cancelled') {
+        if ($order->delivery_status != 'cancelled' && $request->status == 'cancelled') {
             foreach($order->orderDetails as $orderDetail){
                 try{
                     foreach($orderDetail->product->categories as $category){
@@ -206,14 +203,6 @@ class OrderController extends Controller
                     } 
                     else{
                         $shop->current_balance -= $order->seller_earning;
-
-                        $commission = new CommissionHistory();
-                        $commission->order_id = $order->id;
-                        $commission->shop_id = $shop->id;
-                        $commission->seller_earning = $order->seller_earning;
-                        $commission->type = 'Deducted';
-                        $commission->details = format_price($order->seller_earning).' is Deducted for Order Cancellation.';
-                        $commission->save();
                     }
                     $shop->save();
                 }
@@ -221,6 +210,8 @@ class OrderController extends Controller
             }
                 
         }
+        $order->delivery_status = $request->status;
+        $order->save();
 
         flash(translate('Delivery status has been updated.'))->success();
 

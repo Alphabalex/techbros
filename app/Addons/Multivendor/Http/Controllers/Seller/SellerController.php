@@ -193,15 +193,17 @@ class SellerController extends Controller
 
         //taxes
         $tax_data = array();
-        foreach ($request->taxes as $key => $tax) {
-            array_push($tax_data, [
-                'tax' => $tax,
-                'tax_type' => $request->tax_types[$key]
-            ]);
-        }
-        $taxes = array_combine($request->tax_ids, $tax_data);
+        if($request->taxes){
+            foreach ($request->taxes as $key => $tax) {
+                array_push($tax_data, [
+                    'tax' => $tax,
+                    'tax_type' => $request->tax_types[$key]
+                ]);
+            }
+            $taxes = array_combine($request->tax_ids, $tax_data);
 
-        $product->product_taxes()->sync($taxes);
+            $product->product_taxes()->sync($taxes);
+        }
 
         //product variation
         $product->is_variant        = ($request->has('is_variant') && $request->has('variations')) ? 1 : 0;
@@ -380,15 +382,19 @@ class SellerController extends Controller
 
         // taxes
         $tax_data = array();
-        foreach ($request->taxes as $key => $tax) {
-            array_push($tax_data, [
-                'tax' => $tax,
-                'tax_type' => $request->tax_types[$key]
-            ]);
-        }
-        $taxes = array_combine($request->tax_ids, $tax_data);
+        
+        if($request->taxes){
+            foreach ($request->taxes as $key => $tax) {
+                array_push($tax_data, [
+                    'tax' => $tax,
+                    'tax_type' => $request->tax_types[$key]
+                ]);
+            }
+            
+            $taxes = array_combine($request->tax_ids, $tax_data);
 
-        $product->product_taxes()->sync($taxes);
+            $product->product_taxes()->sync($taxes);
+        }
 
 
         //product variation
@@ -454,12 +460,14 @@ class SellerController extends Controller
             }
 
             $variation              = $product->variations->first();
-            $variation->product_id  = $product->id;
-            $variation->code        = null;
-            $variation->sku         = $request->sku;
-            $variation->price       = $request->price;
-            $variation->stock       = $request->stock;
-            $variation->save();
+            if(!is_null($variation)){
+                $variation->product_id  = $product->id;
+                $variation->code        = null;
+                $variation->sku         = $request->sku;
+                $variation->price       = $request->price;
+                $variation->stock       = $request->stock;
+                $variation->save();
+            }
         }
 
 

@@ -41,7 +41,7 @@
                     <div class="form-group row">
                         <label class="col-md-3 col-from-label">{{translate('Minimum Purchase Qty')}} <span class="text-danger">*</span></label>
                         <div class="col-md-8">
-                            <input type="number" class="form-control" name="min_qty" value="1" min="1" value="{{ $product->min_qty }}" required>
+                            <input type="number" class="form-control" name="min_qty" min="1" value="{{ $product->min_qty }}" required>
                             <small class="text-muted">{{translate('Customer need to purchase this minimum quantity for this product. Minimum should be 1.')}}</small>
                         </div>
                     </div>
@@ -106,9 +106,14 @@
                 <div class="card-body">
                     @php
                         $first_variation = $product->variations->first();
-                        $price = !$product->is_variant ? $first_variation->price : 0;
-                        $sku = !$product->is_variant ? $first_variation->sku : null;
-                        $stock = !$product->is_variant ? $first_variation->stock : 1;
+                        $price = 0;
+                        $sku = null;
+                        $stock = 1;
+                        if (!is_null($first_variation)) { 
+                            $price = !$product->is_variant ? $first_variation->price : 0;
+                            $sku = !$product->is_variant ? $first_variation->sku : null;
+                            $stock = !$product->is_variant ? $first_variation->stock : 1;
+                        }
                     @endphp
 
                     <div class="no_product_variant" @if($product->is_variant) style="display:none;" @endif>

@@ -456,8 +456,7 @@ class OrderController extends Controller
             
             $order->payment_status = 'paid';
             $order->payment_type = $payment_method;
-            $order->commission_calculated = 1;
-            $order->payment_details = $payment_info;
+            $order->payment_details = $payment_info; 
             $order->save();
         }
     }

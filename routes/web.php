@@ -10,7 +10,10 @@ use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\Payment\AuthorizenetPaymentController;
+use App\Http\Controllers\Payment\PayfastPaymentController;
 use App\Http\Controllers\Payment\RazorpayPaymentController;
+use App\Http\Controllers\Payment\MercadopagoPaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -55,6 +58,22 @@ Route::group(['prefix' => 'payment'], function(){
 
     // razorpay
     Route::post('razorpay/payment', [RazorpayPaymentController::class,'payment'])->name('razorpay.payment');
+
+    //Payfast routes <starts>
+    Route::controller(PayfastPaymentController::class)->group(function () {
+        Route::any('/payfast/payment/notify', 'payment_notify')->name('payfast.payment.notify');
+        Route::any('/payfast/payment/return', 'payment_return')->name('payfast.payment.return');
+        Route::any('/payfast/payment/cancel', 'payment_cancel')->name('payfast.payment.cancel');
+    });
+    //Payfast routes <ends>
+
+    //Mercadopago <starts>
+    Route::controller(MercadopagoPaymentController::class)->group(function () {
+        Route::any('/mercadopago/payment/done', 'paymentstatus')->name('mercadopago.done');
+        Route::any('/mercadopago/payment/cancel', 'callback')->name('mercadopago.cancel');
+    });
+    //Mercadopago <ends>
+
 });
 
 Route::any('/social-login/redirect/{provider}', [LoginController::class,'redirectToProvider'])->name('social.login');

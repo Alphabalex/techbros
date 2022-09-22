@@ -115,6 +115,24 @@ class HomeController extends Controller
                     'img' => static_asset("assets/img/cards/paytm.png")
                 ],
                 [
+                    'status' => get_setting('payfast_payment'),
+                    'code' => 'payfast',
+                    'name' => 'Payfast',
+                    'img' => static_asset("assets/img/cards/payfast.png")
+                ],
+                [
+                    'status' => get_setting('authorizenet_payment'),
+                    'code' => 'authorizenet',
+                    'name' => translate('Authorize Net'),
+                    'img' => static_asset("assets/img/cards/authorizenet.png")
+                ],
+                [
+                    'status' => get_setting('mercadopago_payment'),
+                    'code' => 'mercadopago',
+                    'name' => translate('Mercadopago'),
+                    'img' => static_asset("assets/img/cards/mercadopago.png")
+                ],
+                [
                     'status' => get_setting('cash_payment'),
                     'code' => 'cash_on_delivery',
                     'name' => translate('Cash on Delivery'),
